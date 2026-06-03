@@ -12,8 +12,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const { Resend } = await import('resend');
-    const resend = new Resend(resendApiKey);
+    // Dynamically import the Resend module to avoid build-time issues when env var is missing
+    const resendModule = await import('resend');
+    const resend = new resendModule.Resend(resendApiKey);
 
     // For security, we'll only allow sending to a pre-verified email if set.
     // In production, you might want to validate the 'to' field or use a fixed recipient.
@@ -31,6 +32,9 @@ export async function POST(request: Request) {
       subject: subject || 'Robin Cloud Alert',
       text: text || 'This is a test email from Robin Cloud.',
     });
+
+    // Log the data for debugging (visible in Vercel logs)
+    console.log('Resend send email response:', data);
 
     return NextResponse.json(data);
   } catch (error) {

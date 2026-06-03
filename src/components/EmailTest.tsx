@@ -26,7 +26,9 @@ export default function EmailTest() {
       const data = await response.json();
       
       if (response.ok) {
-        setResult(`Email sent successfully! ID: ${data.id}`);
+        // Resend response should have an id, but handle gracefully if not
+        const emailId = data.id ?? data.emailId ?? '(see logs)';
+        setResult(`Email sent successfully! ID: ${emailId}`);
       } else {
         setResult(`Error: ${data.error}`);
       }
