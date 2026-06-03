@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Robin Cloud",
+  title: "Robin - Memory Search",
   description: "A portable memory and orchestration layer for Dylan.",
 };
 
