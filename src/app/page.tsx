@@ -111,7 +111,7 @@ export default async function Home() {
     <main className={styles.pageShell}>
       <section className={styles.card}>
         <div className={styles.topBar}>
-          <p className={styles.eyebrow}>Robin Cloud</p>
+          <p className={styles.eyebrow}>Robin Memory Search</p>
           <div className={styles.authControls}>
             <Show when="signed-out">
               <SignInButton mode="modal">
@@ -127,7 +127,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <h1>Robin is alive.</h1>
+        <h1>Memory search</h1>
         <p className={styles.lede}>
           A portable memory and orchestration layer for Dylan, designed to keep
           Robin intact across OpenClaw, Hermes, and whatever vessel comes next.
