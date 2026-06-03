@@ -1,13 +1,52 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
 export async function GET() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
-  return NextResponse.json({
+  const result: any = {
     hasSupabaseUrl: !!supabaseUrl,
     hasSupabaseServiceRoleKey: !!supabaseServiceRoleKey,
     supabaseUrlLength: supabaseUrl?.length || 0,
-    // Don't return the actual values for security
-  });
+    serviceRoleKeyLength: supabaseServiceRoleKey?.length || 0,
+    memoryEventsAccess: null as null | string,
+    healthCheckAccess: null as null | string,
+  };
+
+  if (supabaseUrl && supabaseServiceRoleKey) {
+    try {
+      const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+      
+      // Test memory_events table
+      const { data: memData, error: memError } = await supabase
+        .from('memory_events')
+        .select('count')
+        .limit(1)
+        .single();
+
+      if (memError) {
+        result.memoryEventsAccess = `error: ${memError.message}`;
+      } else {
+        result.memoryEventsAccess = `success: count retrieved`;
+      }
+
+      // Test health_checks table (for comparison)
+      const { data: healthData, error: healthError } = await supabase
+        .from('health_checks')
+        .select('count')
+        .limit(1)
+        .single();
+
+      if (healthError) {
+        result.healthCheckAccess = `error: ${healthError.message}`;
+      } else {
+        result.healthCheckAccess = `success: count retrieved`;
+      }
+    } catch (err: any) {
+      result.memoryEventsAccess = `exception: ${err.message}`;
+    }
+  }
+
+  return NextResponse.json(result);
 }
