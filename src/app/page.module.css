@@ -127,54 +127,50 @@
   font-size: 0.95rem;
 }
 
-.healthOk,
-.healthWarning {
-  margin-top: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
+/* Memory section styles */
+.memorySection {
+  margin-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.5rem;
 }
 
-.healthOk {
-  border-color: rgba(132, 255, 183, 0.34);
-  background: rgba(70, 184, 120, 0.12);
-}
-
-.healthWarning {
-  border-color: rgba(255, 202, 132, 0.34);
-  background: rgba(184, 122, 70, 0.12);
-}
-
-.healthOk span,
-.healthWarning span {
+.memorySection span {
   display: block;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.75rem;
   color: #b7a5c6;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.healthOk strong,
-.healthWarning strong {
-  display: block;
-  font-size: 1.15rem;
-  text-transform: uppercase;
+.memoryList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.healthOk p,
-.healthWarning p {
-  margin: 0.5rem 0 0;
-  color: #d9cbe4;
-  font-size: 0.92rem;
-  line-height: 1.5;
+.memoryItem {
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.healthOk time,
-.healthWarning time {
-  display: block;
-  margin-top: 0.5rem;
-  color: #b7a5c6;
-  font-size: 0.78rem;
+.memoryItem:last-child {
+  border-bottom: none;
+}
+
+.memoryItem strong {
+  color: #e9a7c7;
+}
+
+.metadata {
+  color: #9a89b4;
+  font-size: 0.75rem;
+}
+
+.memoryEmpty {
+  color: #9a89b4;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
 }
 
 @media (max-width: 640px) {
