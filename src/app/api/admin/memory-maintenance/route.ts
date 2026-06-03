@@ -116,6 +116,8 @@ export async function POST(request: Request) {
         .select('id, source, kind, summary, metadata, created_at')
         .not('summary', 'is', null)
         .neq('summary', '')
+        .neq('source', 'test')
+        .neq('kind', 'vector_search_test')
         .order('created_at', { ascending: false })
         .limit(maxEvents);
 
@@ -164,6 +166,24 @@ export async function POST(request: Request) {
               });
             }
           }
+        }
+      }
+    }
+
+
+    if (cleanupTests) {
+      const { data: remainingTestRows } = await supabase
+        .from('memory_events')
+        .select('id')
+        .eq('source', 'test')
+        .eq('kind', 'vector_search_test');
+
+      const remainingIds = (remainingTestRows ?? []).map((row: { id: string }) => row.id);
+      for (const idChunk of chunk(remainingIds, 100)) {
+        try {
+          await index.deleteMany({ ids: idChunk });
+        } catch (error) {
+          summary.cleanup.errors.push(error instanceof Error ? error.message : String(error));
         }
       }
     }
