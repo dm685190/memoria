@@ -7,6 +7,7 @@ import {
 import { createClient } from "@supabase/supabase-js";
 import EmailTest from "../components/EmailTest";
 import SearchBar from "./components/SearchBar";
+import MemoryIngestForm from "./components/MemoryIngestForm";
 import { checkRedisHealth } from "@/lib/upstash";
 import styles from "./page.module.css";
 
@@ -160,6 +161,7 @@ export default async function Home() {
         {/* Search Section */}
         <Show when="signed-in">
           <SearchBar />
+          <MemoryIngestForm />
         </Show>
 
         <div className={styles.memorySection}>

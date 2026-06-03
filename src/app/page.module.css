@@ -491,3 +491,80 @@
   font-size: 0.78rem;
   line-height: 1.45;
 }
+
+.ingestSection {
+  margin-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.5rem;
+}
+
+.ingestForm {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.ingestGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.ingestForm label {
+  display: grid;
+  gap: 0.35rem;
+  color: #b7a5c6;
+  font-size: 0.78rem;
+}
+
+.ingestForm input,
+.ingestForm textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f7eefc;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.ingestForm textarea {
+  resize: vertical;
+}
+
+.ingestForm input:focus,
+.ingestForm textarea:focus {
+  outline: none;
+  border-color: #f5a6c9;
+  box-shadow: 0 0 0 2px rgba(245, 166, 201, 0.2);
+}
+
+.ingestForm button {
+  justify-self: start;
+}
+
+.ingestSuccess,
+.ingestError {
+  margin: 1rem 0 0;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  font-size: 0.88rem;
+}
+
+.ingestSuccess {
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.12);
+  color: #bbf7d0;
+}
+
+.ingestError {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fecaca;
+}
+
+@media (max-width: 640px) {
+  .ingestGrid {
+    grid-template-columns: 1fr;
+  }
+}
