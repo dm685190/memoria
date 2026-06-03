@@ -8,6 +8,7 @@ import { createClient } from "@supabase/supabase-js";
 import EmailTest from "../components/EmailTest";
 import SearchBar from "./components/SearchBar";
 import MemoryIngestForm from "./components/MemoryIngestForm";
+import RecentMemoryEvents from "./components/RecentMemoryEvents";
 import { checkRedisHealth } from "@/lib/upstash";
 import styles from "./page.module.css";
 
@@ -164,24 +165,7 @@ export default async function Home() {
           <MemoryIngestForm />
         </Show>
 
-        <div className={styles.memorySection}>
-          <span>Recent memory events</span>
-          {events.length === 0 ? (
-            <p className={styles.memoryEmpty}>No events yet.</p>
-          ) : (
-            <ul className={styles.memoryList}>
-              {events.map((ev) => (
-                <li key={ev.id} className={styles.memoryItem}>
-                  <strong>{ev.kind}</strong>: {ev.summary}
-                  <br />
-                  <small className={styles.metadata}>
-                    {new Date(ev.created_at).toLocaleString()} • {ev.source}
-                  </small>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        <RecentMemoryEvents initialEvents={events} />
 
         <div className={redisHealth.ok ? styles.healthOk : styles.healthWarning}>
           <span>Upstash Redis</span>

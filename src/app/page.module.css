@@ -606,3 +606,26 @@
 .refreshButton:hover {
   background: rgba(189, 162, 255, 0.18);
 }
+
+.memoryActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.copyButton {
+  border: 1px solid rgba(245, 166, 201, 0.28);
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  background: rgba(245, 166, 201, 0.08);
+  color: #f5a6c9;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.copyButton:hover {
+  background: rgba(245, 166, 201, 0.16);
+}
