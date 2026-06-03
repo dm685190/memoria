@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from '../page.module.css';
 
 type SearchResult = {
@@ -27,6 +28,7 @@ const FALLBACK_TAXONOMY: Taxonomy = {
 };
 
 export default function SearchBar() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [sourceFilter, setSourceFilter] = useState('');
   const [kindFilter, setKindFilter] = useState('');
@@ -38,46 +40,53 @@ export default function SearchBar() {
   const [errorMessage, setErrorMessage] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadTaxonomy = useCallback(async () => {
+    setTaxonomyState('loading');
 
-    async function loadTaxonomy() {
-      try {
-        const res = await fetch('/api/memory-events');
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || `Taxonomy failed: ${res.status}`);
-        }
-
-        const sources = Array.isArray(data.taxonomy?.sources)
-          ? data.taxonomy.sources.filter((value: unknown) => typeof value === 'string')
-          : [];
-        const kinds = Array.isArray(data.taxonomy?.kinds)
-          ? data.taxonomy.kinds.filter((value: unknown) => typeof value === 'string')
-          : [];
-
-        if (!cancelled) {
-          setTaxonomy({
-            sources: sources.length ? sources : FALLBACK_TAXONOMY.sources,
-            kinds: kinds.length ? kinds : FALLBACK_TAXONOMY.kinds,
-          });
-          setTaxonomyState('ready');
-        }
-      } catch (error) {
-        console.error('Error loading memory taxonomy:', error);
-        if (!cancelled) {
-          setTaxonomy(FALLBACK_TAXONOMY);
-          setTaxonomyState('error');
-        }
+    try {
+      const res = await fetch(`/api/memory-events?bust=${Date.now()}`);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `Taxonomy failed: ${res.status}`);
       }
+
+      const sources = Array.isArray(data.taxonomy?.sources)
+        ? data.taxonomy.sources.filter((value: unknown) => typeof value === 'string')
+        : [];
+      const kinds = Array.isArray(data.taxonomy?.kinds)
+        ? data.taxonomy.kinds.filter((value: unknown) => typeof value === 'string')
+        : [];
+
+      setTaxonomy({
+        sources: sources.length ? sources : FALLBACK_TAXONOMY.sources,
+        kinds: kinds.length ? kinds : FALLBACK_TAXONOMY.kinds,
+      });
+      setTaxonomyState('ready');
+    } catch (error) {
+      console.error('Error loading memory taxonomy:', error);
+      setTaxonomy(FALLBACK_TAXONOMY);
+      setTaxonomyState('error');
     }
-
-    loadTaxonomy();
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    loadTaxonomy();
+  }, [loadTaxonomy]);
+
+  useEffect(() => {
+    const handleChanged = () => {
+      loadTaxonomy();
+      router.refresh();
+    };
+
+    window.addEventListener('memory-events-changed', handleChanged);
+    return () => window.removeEventListener('memory-events-changed', handleChanged);
+  }, [loadTaxonomy, router]);
+
+  const handleRefresh = () => {
+    loadTaxonomy();
+    router.refresh();
+  };
 
   const handleDelete = async (id: string) => {
     const confirmed = window.confirm('Delete this memory from Supabase and Pinecone?');
@@ -99,6 +108,8 @@ export default function SearchBar() {
       }
 
       setSearchResults((results) => results.filter((result) => result.id !== id));
+      window.dispatchEvent(new CustomEvent('memory-events-changed'));
+      router.refresh();
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Delete failed');
       setSearchState('error');
@@ -158,6 +169,9 @@ export default function SearchBar() {
       <div className={styles.sectionHeader}>
         <span>Semantic memory search</span>
         <small>Search by meaning, then narrow the bones.</small>
+        <button type="button" className={styles.refreshButton} onClick={handleRefresh}>
+          Refresh memories
+        </button>
       </div>
 
       <form onSubmit={handleSearch} className={styles.searchForm}>

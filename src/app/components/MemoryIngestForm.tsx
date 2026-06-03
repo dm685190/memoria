@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from '../page.module.css';
 
 type SubmitState = 'idle' | 'loading' | 'success' | 'error';
 
 export default function MemoryIngestForm() {
+  const router = useRouter();
   const [source, setSource] = useState('openclaw');
   const [kind, setKind] = useState('note');
   const [summary, setSummary] = useState('');
@@ -49,6 +51,8 @@ export default function MemoryIngestForm() {
       setSubmitState('success');
       setMessage(`Saved ${data.event.id}${data.pineconeUpserted ? ' and indexed it.' : ', but indexing warned.'}`);
       setSummary('');
+      window.dispatchEvent(new CustomEvent('memory-events-changed'));
+      router.refresh();
     } catch (error) {
       setSubmitState('error');
       setMessage(error instanceof Error ? error.message : 'Memory ingest failed');
