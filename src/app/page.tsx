@@ -6,6 +6,7 @@ import {
 } from "@clerk/nextjs";
 import { createClient } from "@supabase/supabase-js";
 import EmailTest from "@/components/EmailTest";
+import { checkRedisHealth } from "@/lib/upstash";
 import styles from "./page.module.css";
 
 type HealthCheck = {
@@ -20,6 +21,11 @@ type MemoryEvent = {
   summary: string;
   metadata: Record<string, any>;
   created_at: string;
+};
+
+type RedisHealth = {
+  ok: boolean;
+  error: string | null;
 };
 
 async function getSupabaseHealth() {
@@ -94,9 +100,10 @@ async function getMemoryEvents(): Promise<MemoryEvent[]> {
 }
 
 export default async function Home() {
-  const [health, events] = await Promise.all([
+  const [health, events, redisHealth] = await Promise.all([
     getSupabaseHealth(),
     getMemoryEvents(),
+    checkRedisHealth(),
   ]);
 
   return (
@@ -137,6 +144,10 @@ export default async function Home() {
             <span>Memory intake</span>
             <strong>RobinVault</strong>
           </div>
+          <div>
+            <span>Cache layer</span>
+            <strong>{redisHealth.ok ? 'Connected' : 'Disconnected'}</strong>
+          </div>
         </div>
 
         <div className={health.ok ? styles.healthOk : styles.healthWarning}>
@@ -163,6 +174,12 @@ export default async function Home() {
               ))}
             </ul>
           )}
+        </div>
+
+        <div className={redisHealth.ok ? styles.healthOk : styles.healthWarning}>
+          <span>Upstash Redis</span>
+          <strong>{redisHealth.ok ? 'Connected' : 'Disconnected'}</strong>
+          {!redisHealth.ok && <p>{redisHealth.error}</p>}
         </div>
 
         <Show when="signed-in">
