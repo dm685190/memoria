@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
 import { initPinecone, getPineconeIndex } from '@/lib/pinecone';
 
 type MemoryEvent = {
@@ -12,20 +12,30 @@ type MemoryEvent = {
   created_at: string;
 };
 
-// Initialize OpenAI
-const openaiConfig = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY || '',
-});
-const openai = new OpenAIApi(openaiConfig);
+let openai: OpenAI | null = null;
+
+function getOpenAIClient() {
+  if (openai) {
+    return openai;
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is not configured');
+  }
+
+  openai = new OpenAI({ apiKey });
+  return openai;
+}
 
 // Generate embedding for text
 async function getEmbedding(text: string): Promise<number[]> {
   try {
-    const response = await openai.createEmbedding({
+    const response = await getOpenAIClient().embeddings.create({
       model: process.env.EMBEDDING_MODEL || 'text-embedding-3-small',
       input: text,
     });
-    return response.data.data[0].embedding;
+    return response.data[0].embedding;
   } catch (error) {
     console.error('Error generating embedding:', error);
     throw new Error('Failed to generate embedding');
@@ -122,7 +132,8 @@ export async function POST(request: Request) {
       try {
         await initPinecone();
         const index = await getPineconeIndex();
-        await index.upsert([
+        await index.upsert({
+          records: [
           {
             id: insertedEvent.id,
             values: embedding,
@@ -134,7 +145,8 @@ export async function POST(request: Request) {
               // metadata_json: JSON.stringify(insertedEvent.metadata || {}),
             }
           }
-        ]);
+          ]
+        });
       } catch (pineconeError) {
         console.error('Error upserting to Pinecone:', pineconeError);
         // Don't fail the request if Pinecone fails
