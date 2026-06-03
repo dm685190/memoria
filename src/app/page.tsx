@@ -5,6 +5,7 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { createClient } from "@supabase/supabase-js";
+import EmailTest from "@/components/EmailTest";
 import styles from "./page.module.css";
 
 type HealthCheck = {
@@ -168,6 +169,13 @@ export default async function Home() {
           <p className={styles.signedInNote}>
             Auth gate is open. The first ghost has a name.
           </p>
+        </Show>
+
+        {/* Email test section - only visible when signed in */}
+        <Show when="signed-in">
+          <section className={styles.emailTestSection}>
+            <EmailTest />
+          </section>
         </Show>
       </section>
     </main>
