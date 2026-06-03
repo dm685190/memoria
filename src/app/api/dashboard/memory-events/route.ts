@@ -122,3 +122,69 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
+      return NextResponse.json(
+        { error: 'Supabase credentials not configured on server' },
+        { status: 500 }
+      );
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const id = cleanString(body.id, 'id', MAX_FIELD_LENGTH);
+
+    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+    const { data: existingEvent, error: selectError } = await supabase
+      .from('memory_events')
+      .select('id')
+      .eq('id', id)
+      .single();
+
+    if (selectError || !existingEvent) {
+      return NextResponse.json({ error: 'Memory event not found' }, { status: 404 });
+    }
+
+    let pineconeDeleted = false;
+    let pineconeError: string | null = null;
+
+    try {
+      await initPinecone();
+      const index = await getPineconeIndex();
+      await index.deleteMany({ ids: [id] });
+      pineconeDeleted = true;
+    } catch (error) {
+      pineconeError = error instanceof Error ? error.message : String(error);
+      console.error('Pinecone delete failed for dashboard memory event:', error);
+    }
+
+    const { error: deleteError } = await supabase
+      .from('memory_events')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      deleted: true,
+      id,
+      pineconeDeleted,
+      ...(pineconeError ? { warning: 'Supabase row deleted but Pinecone delete failed', pineconeError } : {}),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const status = message.startsWith('Missing required field') || message.includes('exceeds') ? 400 : 500;
+    return NextResponse.json({ error: message }, { status });
+  }
+}

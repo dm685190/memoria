@@ -36,6 +36,7 @@ export default function SearchBar() {
   const [taxonomyState, setTaxonomyState] = useState<TaxonomyState>('loading');
   const [taxonomy, setTaxonomy] = useState<Taxonomy>(FALLBACK_TAXONOMY);
   const [errorMessage, setErrorMessage] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,6 +78,34 @@ export default function SearchBar() {
       cancelled = true;
     };
   }, []);
+
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm('Delete this memory from Supabase and Pinecone?');
+    if (!confirmed) return;
+
+    setDeletingId(id);
+    setErrorMessage('');
+
+    try {
+      const res = await fetch('/api/dashboard/memory-events', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `Delete failed: ${res.status}`);
+      }
+
+      setSearchResults((results) => results.filter((result) => result.id !== id));
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Delete failed');
+      setSearchState('error');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,6 +242,14 @@ export default function SearchBar() {
                   <small className={styles.searchResultMeta}>
                     {new Date(result.created_at).toLocaleString()} &bull; {result.source}
                   </small>
+                  <button
+                    type="button"
+                    className={styles.dangerButton}
+                    disabled={deletingId === result.id}
+                    onClick={() => handleDelete(result.id)}
+                  >
+                    {deletingId === result.id ? 'Deleting...' : 'Delete memory'}
+                  </button>
                   {result.metadata && Object.keys(result.metadata).length > 0 && (
                     <details className={styles.metadataDetails}>
                       <summary>metadata</summary>
