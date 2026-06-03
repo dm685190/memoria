@@ -17,7 +17,8 @@ export default function EmailTest() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          to: 'test@example.com',
+          // Use the verified email from Resend sandbox error
+          to: 'dylan@sprlrsrchlab.com',
           subject: 'Test email from Robin Cloud',
           text: 'This is a test email sent via Resend integration.',
         }),
