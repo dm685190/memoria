@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
     // Parse request body
     const body = await request.json();
-    const { query, limit = 10, filters } = body;
+    const { query, limit = 10, filters, minScore = 0 } = body;
 
     if (!query || typeof query !== 'string') {
       return NextResponse.json(
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     // Prepare Pinecone query with optional metadata filters
     const pineconeQuery: any = {
       vector: queryEmbedding,
-      topK: limit,
+      topK: filters && typeof filters === 'object' ? Math.min(Number(limit) * 4 || 40, 100) : Number(limit) || 10,
       includeMetadata: true,
     };
 
@@ -83,35 +83,37 @@ export async function POST(request: Request) {
       events = data as MemoryEvent[];
     }
 
-    // Apply client-side filtering if filters provided
+    const matchById = new Map(searchResults.matches.map((match: any) => [match.id, match]));
+
+    // Apply filtering if filters provided. Only allow safe top-level fields.
     if (filters && typeof filters === 'object') {
       events = events.filter(event => {
-        for (const [key, value] of Object.entries(filters)) {
-          if ((event as Record<string, unknown>)[key] !== value) {
-            return false;
-          }
-        }
-        return true;
+        const source = typeof filters.source === 'string' ? filters.source : '';
+        const kind = typeof filters.kind === 'string' ? filters.kind : '';
+        return (!source || event.source === source) && (!kind || event.kind === kind);
       });
     }
+
+    const minimumScore = typeof minScore === 'number' ? minScore : Number(minScore) || 0;
 
     // Format results with scores
     const results = events.map(event => {
       // Find the corresponding score from Pinecone matches
-      const match = searchResults.matches.find((m: any) => m.id === event.id);
+      const match = matchById.get(event.id) as any;
       return {
         ...event,
         score: match ? match.score : 0,
       };
-    });
+    }).filter(event => (event.score || 0) >= minimumScore);
 
-    // Sort by score descending
+    // Sort by score descending and return requested result count after filtering.
     results.sort((a, b) => (b.score || 0) - (a.score || 0));
+    const limitedResults = results.slice(0, Number(limit) || 10);
 
     return NextResponse.json({
       query,
-      results,
-      count: results.length,
+      results: limitedResults,
+      count: limitedResults.length,
     });
   } catch (err) {
     console.error('Error in search-memory:', err);
