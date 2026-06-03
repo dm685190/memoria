@@ -173,6 +173,129 @@
   padding: 2rem;
 }
 
+/* Search section styles */
+.searchSection {
+  margin-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.5rem;
+}
+
+.searchSection span {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #b7a5c6;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.searchForm {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f7eefc;
+  font-size: 0.9rem;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #f5a6c9;
+  box-shadow: 0 0 0 2px rgba(245, 166, 201, 0.2);
+}
+
+.searchInput::placeholder {
+  color: rgba(247, 238, 252, 0.5);
+}
+
+.searchButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  background: #f5a6c9;
+  color: #160b20;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.searchButton:hover:not(:disabled) {
+  background: #bda2ff;
+}
+
+.searchButton:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.searchLoading {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.searchResults {
+  margin-top: 1.5rem;
+}
+
+.searchResults h3 {
+  margin: 0 0 1rem;
+  color: #e9a7c7;
+  font-size: 1.1rem;
+}
+
+.searchResultsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.searchResultItem {
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.searchResultItem:last-child {
+  margin-bottom: 0;
+}
+
+.searchResultContent {
+  margin-bottom: 0.5rem;
+}
+
+.searchResultMeta {
+  color: #9a89b4;
+  font-size: 0.8rem;
+}
+
+.searchNoResults {
+  color: #9a89b4;
+  font-style: italic;
+  text-align: center;
+  padding: 1.5rem;
+}
+
 /* Email test section styles */
 .emailTestSection {
   margin-top: 2rem;
@@ -244,6 +367,12 @@
     align-items: stretch;
   }
   .email-test-button {
+    width: 100%;
+  }
+  .searchForm {
+    flex-direction: column;
+  }
+  .searchInput {
     width: 100%;
   }
 }

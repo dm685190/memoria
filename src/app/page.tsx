@@ -8,6 +8,7 @@ import { createClient } from "@supabase/supabase-js";
 import EmailTest from "@/components/EmailTest";
 import { checkRedisHealth } from "@/lib/upstash";
 import styles from "./page.module.css";
+import { useState, useEffect } from "react";
 
 type HealthCheck = {
   status: string | null;
@@ -26,6 +27,10 @@ type MemoryEvent = {
 type RedisHealth = {
   ok: boolean;
   error: string | null;
+};
+
+type SearchResult = MemoryEvent & {
+  score: number;
 };
 
 async function getSupabaseHealth() {
@@ -99,12 +104,63 @@ async function getMemoryEvents(): Promise<MemoryEvent[]> {
   }
 }
 
+async function searchMemoryEvents(query: string): Promise<SearchResult[]> {
+  if (!query.trim()) {
+    return [];
+  }
+
+  try {
+    const res = await fetch('/api/search-memory', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query, limit: 10 }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Search failed: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.results as SearchResult[];
+  } catch (error) {
+    console.error('Error searching memory events:', error);
+    return [];
+  }
+}
+
 export default async function Home() {
   const [health, events, redisHealth] = await Promise.all([
     getSupabaseHealth(),
     getMemoryEvents(),
     checkRedisHealth(),
   ]);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const results = await searchMemoryEvents(searchQuery);
+      setSearchResults(results);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Optional: implement debounce for search on input change
+    // For simplicity, we're using manual search button for now
+  }, [searchQuery]);
 
   return (
     <main className={styles.pageShell}>
@@ -156,6 +212,52 @@ export default async function Home() {
           <p>{health.detail}</p>
           {health.checkedAt ? <time>{health.checkedAt}</time> : null}
         </div>
+
+        {/* Search Section */}
+        <Show when="signed-in">
+          <div className={styles.searchSection}>
+            <form onSubmit={handleSearch} className={styles.searchForm}>
+              <input
+                type="text"
+                placeholder="Search memories by meaning..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+                disabled={searchLoading}
+              />
+              <button
+                type="submit"
+                disabled={searchLoading || !searchQuery.trim()}
+                className={`${styles.searchButton} ${searchLoading ? styles.searchLoading : ''}`}
+              >
+                {searchLoading ? 'Searching...' : 'Search'}
+              </button>
+            </form>
+            {searchResults.length > 0 && (
+              <div className={styles.searchResults}>
+                <h3>Search Results</h3>
+                <ul className={styles.searchResultsList}>
+                  {searchResults.map((result) => (
+                    <li key={result.id} className={styles.searchResultItem}>
+                      <div className={styles.searchResultContent}>
+                        <strong>{result.kind}</strong>: {result.summary}
+                        <br />
+                        <small className={styles.searchResultMeta}>
+                          Score: {result.score?.toFixed(3)} • 
+                          {new Date(result.created_at).toLocaleString()} • 
+                          {result.source}
+                        </small>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                {searchResults.length === 0 && (
+                  <p className={styles.searchNoResults}>No results found.</p>
+                )}
+              </div>
+            )}
+          </div>
+        </Show>
 
         <div className={styles.memorySection}>
           <span>Recent memory events</span>
