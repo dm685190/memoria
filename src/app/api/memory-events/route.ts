@@ -33,7 +33,25 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ events: (data as MemoryEvent[]) ?? [] });
+    const { data: taxonomyData, error: taxonomyError } = await supabase
+      .from('memory_events')
+      .select('source, kind');
+
+    if (taxonomyError) {
+      return NextResponse.json({ error: taxonomyError.message }, { status: 500 });
+    }
+
+    const sources = Array.from(
+      new Set((taxonomyData ?? []).map((event) => event.source).filter(Boolean))
+    ).sort();
+    const kinds = Array.from(
+      new Set((taxonomyData ?? []).map((event) => event.kind).filter(Boolean))
+    ).sort();
+
+    return NextResponse.json({
+      events: (data as MemoryEvent[]) ?? [],
+      taxonomy: { sources, kinds },
+    });
   } catch (err) {
     return NextResponse.json(
       { error: 'Internal server error' },

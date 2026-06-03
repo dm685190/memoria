@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from '../page.module.css';
 
 type SearchResult = {
@@ -14,9 +14,17 @@ type SearchResult = {
 };
 
 type SearchState = 'idle' | 'loading' | 'success' | 'error';
+type TaxonomyState = 'loading' | 'ready' | 'error';
 
-const SOURCE_OPTIONS = ['openclaw', 'supabase', 'dashboard', 'system'];
-const KIND_OPTIONS = ['deployment', 'decision', 'error', 'milestone', 'note', 'system'];
+type Taxonomy = {
+  sources: string[];
+  kinds: string[];
+};
+
+const FALLBACK_TAXONOMY: Taxonomy = {
+  sources: ['openclaw', 'supabase'],
+  kinds: ['decision', 'deployment', 'milestone', 'system'],
+};
 
 export default function SearchBar() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +33,50 @@ export default function SearchBar() {
   const [minScore, setMinScore] = useState('0.25');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchState, setSearchState] = useState<SearchState>('idle');
+  const [taxonomyState, setTaxonomyState] = useState<TaxonomyState>('loading');
+  const [taxonomy, setTaxonomy] = useState<Taxonomy>(FALLBACK_TAXONOMY);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadTaxonomy() {
+      try {
+        const res = await fetch('/api/memory-events');
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || `Taxonomy failed: ${res.status}`);
+        }
+
+        const sources = Array.isArray(data.taxonomy?.sources)
+          ? data.taxonomy.sources.filter((value: unknown) => typeof value === 'string')
+          : [];
+        const kinds = Array.isArray(data.taxonomy?.kinds)
+          ? data.taxonomy.kinds.filter((value: unknown) => typeof value === 'string')
+          : [];
+
+        if (!cancelled) {
+          setTaxonomy({
+            sources: sources.length ? sources : FALLBACK_TAXONOMY.sources,
+            kinds: kinds.length ? kinds : FALLBACK_TAXONOMY.kinds,
+          });
+          setTaxonomyState('ready');
+        }
+      } catch (error) {
+        console.error('Error loading memory taxonomy:', error);
+        if (!cancelled) {
+          setTaxonomy(FALLBACK_TAXONOMY);
+          setTaxonomyState('error');
+        }
+      }
+    }
+
+    loadTaxonomy();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,7 +154,7 @@ export default function SearchBar() {
           Source
           <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)}>
             <option value="">Any</option>
-            {SOURCE_OPTIONS.map((source) => (
+            {taxonomy.sources.map((source) => (
               <option key={source} value={source}>{source}</option>
             ))}
           </select>
@@ -112,7 +163,7 @@ export default function SearchBar() {
           Kind
           <select value={kindFilter} onChange={(e) => setKindFilter(e.target.value)}>
             <option value="">Any</option>
-            {KIND_OPTIONS.map((kind) => (
+            {taxonomy.kinds.map((kind) => (
               <option key={kind} value={kind}>{kind}</option>
             ))}
           </select>
@@ -129,6 +180,15 @@ export default function SearchBar() {
           />
         </label>
       </div>
+
+      <p className={styles.filterHint}>
+        {taxonomyState === 'loading'
+          ? 'Loading filter values from the archive...'
+          : taxonomyState === 'error'
+            ? 'Using fallback filters; live taxonomy could not be loaded.'
+            : `Filters loaded from ${taxonomy.sources.length} source${taxonomy.sources.length === 1 ? '' : 's'} and ${taxonomy.kinds.length} kind${taxonomy.kinds.length === 1 ? '' : 's'}.`}
+        {' '}Scores closer to 1 are stronger semantic matches.
+      </p>
 
       {searchState === 'error' && (
         <p className={styles.searchError}>{errorMessage}</p>
