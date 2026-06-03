@@ -20,14 +20,14 @@ function getPineconeClient() {
   return pinecone;
 }
 
-export async function getEmbedding(text: string): Promise<number[]> {
+export async function getEmbedding(text: string, inputType: 'passage' | 'query' = 'passage'): Promise<number[]> {
   try {
     const client = getPineconeClient();
     const response = await client.inference.embed({
       model: embeddingModel,
       inputs: [text],
       parameters: {
-        input_type: 'passage',
+        input_type: inputType,
         truncate: 'END',
       },
     });

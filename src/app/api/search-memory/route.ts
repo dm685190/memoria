@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     // Generate embedding for the query
     let queryEmbedding: number[] = [];
     try {
-      queryEmbedding = await getEmbedding(query);
+      queryEmbedding = await getEmbedding(query, 'query');
     } catch (embedError) {
       return NextResponse.json(
         { error: 'Failed to generate query embedding' },
