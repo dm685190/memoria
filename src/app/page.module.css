@@ -127,6 +127,56 @@
   font-size: 0.95rem;
 }
 
+.healthOk,
+.healthWarning {
+  margin-top: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.healthOk {
+  border-color: rgba(132, 255, 183, 0.34);
+  background: rgba(70, 184, 120, 0.12);
+}
+
+.healthWarning {
+  border-color: rgba(255, 202, 132, 0.34);
+  background: rgba(184, 122, 70, 0.12);
+}
+
+.healthOk span,
+.healthWarning span {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #b7a5c6;
+  font-size: 0.8rem;
+}
+
+.healthOk strong,
+.healthWarning strong {
+  display: block;
+  font-size: 1.15rem;
+  text-transform: uppercase;
+}
+
+.healthOk p,
+.healthWarning p {
+  margin: 0.5rem 0 0;
+  color: #d9cbe4;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.healthOk time,
+.healthWarning time {
+  display: block;
+  margin-top: 0.5rem;
+  color: #b7a5c6;
+  font-size: 0.78rem;
+}
+
 @media (max-width: 640px) {
   .topBar {
     align-items: flex-start;
