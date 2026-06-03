@@ -1,0 +1,76 @@
+.pageShell {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at top left, rgba(104, 58, 183, 0.28), transparent 32rem),
+    radial-gradient(circle at bottom right, rgba(226, 87, 146, 0.22), transparent 28rem),
+    #0b0712;
+  color: #f7eefc;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.card {
+  width: min(760px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 28px;
+  padding: clamp(2rem, 5vw, 4rem);
+  background: rgba(12, 9, 20, 0.76);
+  box-shadow: 0 24px 100px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(18px);
+}
+
+.eyebrow {
+  margin: 0 0 1rem;
+  color: #e9a7c7;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.card h1 {
+  margin: 0;
+  font-size: clamp(3rem, 10vw, 6.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+}
+
+.lede {
+  max-width: 58ch;
+  margin: 1.5rem 0 2rem;
+  color: #d9cbe4;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.7;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.statusGrid div {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.statusGrid span {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #b7a5c6;
+  font-size: 0.8rem;
+}
+
+.statusGrid strong {
+  font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+  .statusGrid {
+    grid-template-columns: 1fr;
+  }
+}
