@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
-import { initPinecone, getPineconeIndex } from '@/lib/pinecone';
+import { initPinecone, getPineconeIndex, getEmbedding } from '@/lib/pinecone';
 import { createClient } from '@supabase/supabase-js';
 
 type MemoryEvent = {
@@ -11,36 +10,6 @@ type MemoryEvent = {
   metadata: Record<string, any>;
   created_at: string;
 };
-
-let openai: OpenAI | null = null;
-
-function getOpenAIClient() {
-  if (openai) {
-    return openai;
-  }
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not configured');
-  }
-
-  openai = new OpenAI({ apiKey });
-  return openai;
-}
-
-// Generate embedding for text
-async function getEmbedding(text: string): Promise<number[]> {
-  try {
-    const response = await getOpenAIClient().embeddings.create({
-      model: process.env.EMBEDDING_MODEL || 'text-embedding-3-small',
-      input: text,
-    });
-    return response.data[0].embedding;
-  } catch (error) {
-    console.error('Error generating embedding:', error);
-    throw new Error('Failed to generate embedding');
-  }
-}
 
 export async function POST(request: Request) {
   try {

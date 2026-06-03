@@ -1,6 +1,7 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 
-const indexName = process.env.PINECONE_INDEX_NAME || 'robin-memory-events';
+const indexName = process.env.PINECONE_INDEX_NAME || 'robin-memory-events-2048';
+const embeddingModel = process.env.PINECONE_EMBEDDING_MODEL || 'llama-text-embed-v2';
 
 let pinecone: Pinecone | null = null;
 let index: ReturnType<Pinecone['Index']> | null = null;
@@ -17,6 +18,30 @@ function getPineconeClient() {
 
   pinecone = new Pinecone({ apiKey });
   return pinecone;
+}
+
+export async function getEmbedding(text: string): Promise<number[]> {
+  try {
+    const client = getPineconeClient();
+    const response = await client.inference.embed({
+      model: embeddingModel,
+      inputs: [text],
+      parameters: {
+        input_type: 'passage',
+        truncate: 'END',
+      },
+    });
+
+    const embedding = response.data[0];
+    if (!embedding || embedding.vectorType !== 'dense' || !('values' in embedding)) {
+      throw new Error(`Model ${embeddingModel} did not return a dense embedding`);
+    }
+
+    return embedding.values;
+  } catch (error) {
+    console.error('Error generating Pinecone embedding:', error);
+    throw new Error('Failed to generate embedding');
+  }
 }
 
 export const initPinecone = async () => {
@@ -56,6 +81,7 @@ export const checkPineconeHealth = async () => {
     return {
       connected: true,
       indexName,
+      embeddingModel,
       totalVectorCount: stats.totalRecordCount ?? 0,
       dimension: stats.dimension,
     };
@@ -67,4 +93,4 @@ export const checkPineconeHealth = async () => {
   }
 };
 
-export default { initPinecone, getPineconeIndex, checkPineconeHealth };
+export default { initPinecone, getPineconeIndex, getEmbedding, checkPineconeHealth };
