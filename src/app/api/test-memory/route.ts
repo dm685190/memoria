@@ -1,24 +1,13 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { initPinecone, getPineconeIndex, getEmbedding } from '@/lib/pinecone';
-
-function isAuthorized(request: Request) {
-  const token = process.env.ADMIN_TASK_TOKEN;
-  if (!token) {
-    throw new Error('ADMIN_TASK_TOKEN is not configured');
-  }
-
-  const authorization = request.headers.get('authorization') ?? '';
-  const bearer = authorization.startsWith('Bearer ') ? authorization.slice('Bearer '.length) : '';
-  const headerToken = request.headers.get('x-admin-task-token') ?? '';
-
-  return bearer === token || headerToken === token;
-}
+import { requireAdmin } from '@/lib/adminAuth';
 
 export async function POST(request: Request) {
   try {
-    if (!isAuthorized(request)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const auth = requireAdmin(request);
+    if (!auth.authorized) {
+      return auth.response;
     }
 
     const supabaseUrl = process.env.SUPABASE_URL;
