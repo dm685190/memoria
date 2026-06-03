@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/adminAuth';
 import { getEmbedding, getPineconeIndex, initPinecone } from '@/lib/pinecone';
+import { createSupabaseServiceClient, hardDeleteMemoryEvent } from '@/lib/memoryEvents';
 
 const MAX_SUMMARY_LENGTH = 8000;
 const MAX_FIELD_LENGTH = 120;
@@ -46,16 +46,6 @@ export async function POST(request: Request) {
       return auth.response;
     }
 
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-      return NextResponse.json(
-        { error: 'Supabase credentials not configured on server' },
-        { status: 500 }
-      );
-    }
-
     const body = (await request.json()) as MemoryEventBody;
     const source = cleanString(body.source, 'source', MAX_FIELD_LENGTH);
     const kind = cleanString(body.kind, 'kind', MAX_FIELD_LENGTH);
@@ -65,7 +55,7 @@ export async function POST(request: Request) {
       ? new Date(body.created_at).toISOString()
       : new Date().toISOString();
 
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+    const supabase = createSupabaseServiceClient();
     const { data: insertedEvent, error: insertError } = await supabase
       .from('memory_events')
       .insert([
@@ -130,57 +120,19 @@ export async function DELETE(request: Request) {
       return auth.response;
     }
 
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-      return NextResponse.json(
-        { error: 'Supabase credentials not configured on server' },
-        { status: 500 }
-      );
-    }
-
     const body = await request.json().catch(() => ({}));
     const id = cleanString(body.id, 'id', MAX_FIELD_LENGTH);
+    const result = await hardDeleteMemoryEvent(id);
 
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-    const { data: existingEvent, error: selectError } = await supabase
-      .from('memory_events')
-      .select('id, source, kind, summary, created_at')
-      .eq('id', id)
-      .single();
-
-    if (selectError || !existingEvent) {
-      return NextResponse.json({ error: 'Memory event not found' }, { status: 404 });
-    }
-
-    let pineconeDeleted = false;
-    let pineconeError: string | null = null;
-
-    try {
-      await initPinecone();
-      const index = await getPineconeIndex();
-      await index.deleteMany({ ids: [id] });
-      pineconeDeleted = true;
-    } catch (error) {
-      pineconeError = error instanceof Error ? error.message : String(error);
-      console.error('Pinecone delete failed for admin memory event:', error);
-    }
-
-    const { error: deleteError } = await supabase
-      .from('memory_events')
-      .delete()
-      .eq('id', id);
-
-    if (deleteError) {
-      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    if (!result.found || result.error) {
+      return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
     return NextResponse.json({
       deleted: true,
-      event: existingEvent,
-      pineconeDeleted,
-      ...(pineconeError ? { warning: 'Supabase row deleted but Pinecone delete failed', pineconeError } : {}),
+      event: result.event,
+      pineconeDeleted: result.pineconeDeleted,
+      ...(result.pineconeError ? { warning: 'Supabase row deleted but Pinecone delete failed', pineconeError: result.pineconeError } : {}),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
