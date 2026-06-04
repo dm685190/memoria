@@ -17,7 +17,7 @@ Requires `ADMIN_TASK_TOKEN` via either:
 {
   "query": "Robin Cloud archive retention",
   "limit": 5,
-  "filters": { "source": "openclaw", "kind": "deployment" },
+  "filters": { "source": "hermes", "kind": "deployment" },
   "minScore": 0,
   "includeArchived": false,
   "includeMetadata": false
@@ -36,7 +36,7 @@ Returns both structured memories and a compact prompt-ready `context` string.
     {
       "id": "...",
       "score": 0.42,
-      "source": "openclaw",
+      "source": "hermes",
       "kind": "deployment",
       "created_at": "2026-06-04T00:07:23.364+00:00",
       "archived": false,

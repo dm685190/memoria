@@ -40,7 +40,7 @@ OpenClaw can pull compact context without opening the dashboard:
 /home/caretaker/.openclaw/workspace/scripts/robin-memory-recall "Robin Cloud recall API" --json --limit 2
 ```
 
-The CLI reads the admin token from 1Password item `Vercel Admin Key` in vault `OpenClaw-Robin` and does not print it.
+The CLI reads the admin token from 1Password item `Robin Cloud Vercel App Admin Token` in vault `Robin Vault` and does not print it.
 
 ## API search
 

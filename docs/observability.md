@@ -49,8 +49,12 @@ Look for the `robin-cloud` project under the GitHub-connected Vercel account/tea
 
 1. Production `/api/admin/recall-memory` logs in Vercel.
 2. Confirm `ADMIN_TASK_TOKEN` exists in Vercel.
-3. Confirm 1Password item `Vercel Admin Key` in vault `OpenClaw-Robin` is readable from OpenClaw.
-4. Confirm Pinecone and Supabase credentials are still valid.
+3. Confirm 1Password item `Robin Cloud Vercel App Admin Token` in vault `Robin Vault` is readable locally.
+4. Confirm current Hermes wrapper works:
+   - `/home/caretaker/.hermes/scripts/robin-memory-recall "query" --source hermes --limit 3`
+5. Confirm legacy OpenClaw wrapper only if investigating pre-cutover records:
+   - `/home/caretaker/.openclaw/workspace/scripts/robin-memory-recall "query" --source openclaw --limit 3`
+6. Confirm Pinecone and Supabase credentials are still valid.
 
 ### Dashboard ingestion/archive/restore broken
 
@@ -78,11 +82,13 @@ npm run lint
 Production smoke tests:
 
 ```bash
-curl -sS https://robin-cloud.vercel.app/api/memory-events
-curl -sS -X POST \
-  -H 'Content-Type: application/json' \
-  --data '{"query":"deployment verification","limit":3,"minScore":0}' \
-  https://robin-cloud.vercel.app/api/search-memory
+# Unauthenticated memory listing must stay sealed.
+curl -sS -o /tmp/robin-memory-events-body -w '%{http_code}\n' \
+  https://robin-cloud.vercel.app/api/memory-events
+
+# Admin-token recall should still work via the local wrapper.
+/home/caretaker/.hermes/scripts/robin-memory-recall \
+  "deployment verification" --source hermes --limit 3
 ```
 
 Do not paste or print admin tokens in logs. Use 1Password reads or local wrappers when possible.

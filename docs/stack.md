@@ -64,23 +64,33 @@ Robin Cloud is a private memory and observability-adjacent dashboard for OpenCla
 
 ### 1Password
 
-- Role: local secret retrieval for OpenClaw tooling.
-- Important item: `Vercel Admin Key` in vault `OpenClaw-Robin`.
+- Role: local secret retrieval for OpenClaw/Hermes tooling.
+- Important item: `Robin Cloud Vercel App Admin Token` in vault `Robin Vault`.
 - Used by: local recall/capture tooling to call protected admin routes without printing tokens.
+
+### Hermes workspace
+
+- Path: `/home/caretaker/.hermes`
+- Role: current local operator environment, helper scripts, memory notes, recall/capture wrappers.
+- Useful scripts:
+  - `/home/caretaker/.hermes/scripts/robin-memory-recall`
+  - `/home/caretaker/.hermes/scripts/robin-memory-capture`
+- Default capture source: `hermes`.
 
 ### OpenClaw workspace
 
 - Path: `/home/caretaker/.openclaw/workspace`
-- Role: local operator environment, helper scripts, memory notes, recall/capture wrappers.
-- Useful scripts:
+- Role: legacy/cutover operator environment, original helper scripts, memory notes, recall/capture wrappers.
+- Useful legacy scripts:
   - `/home/caretaker/.openclaw/workspace/scripts/robin-memory-recall`
   - `/home/caretaker/.openclaw/workspace/scripts/robin-memory-capture`
+- Default legacy capture source: `openclaw`.
 
 ## Route map
 
 ### Public/dashboard-safe reads
 
-- `GET /api/memory-events` — recent memory events and taxonomy.
+- `GET /api/memory-events` — protected recent memory events and taxonomy for signed-in dashboard users or admin-token callers.
 - `POST /api/search-memory` — semantic active search plus archived keyword fallback when requested.
 
 ### Public write status
