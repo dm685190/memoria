@@ -91,7 +91,7 @@ Robin Cloud is a private memory and observability-adjacent dashboard for OpenCla
 ### Public/dashboard-safe reads
 
 - `GET /api/memory-events` — protected recent memory events and taxonomy for signed-in dashboard users or admin-token callers.
-- `POST /api/search-memory` — semantic active search plus archived keyword fallback when requested.
+- `POST /api/search-memory` — protected semantic active search plus archived keyword fallback for signed-in dashboard users or admin-token callers.
 
 ### Public write status
 

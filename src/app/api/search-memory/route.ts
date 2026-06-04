@@ -1,4 +1,6 @@
+import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { isAdminAuthorized } from '@/lib/adminAuth';
 import { initPinecone, getPineconeIndex, getEmbedding } from '@/lib/pinecone';
 import { createSupabaseServiceClient } from '@/lib/memoryEvents';
 
@@ -16,6 +18,11 @@ type MemoryEvent = {
 
 export async function POST(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId && !isAdminAuthorized(request)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const supabase = createSupabaseServiceClient();
 
     // Parse request body
@@ -146,6 +153,11 @@ export async function POST(request: Request) {
       count: limitedResults.length,
     });
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message === 'ADMIN_TASK_TOKEN is not configured') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     console.error('Error in search-memory:', err);
     return NextResponse.json(
       { error: 'Internal server error' },

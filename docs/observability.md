@@ -86,6 +86,12 @@ Production smoke tests:
 curl -sS -o /tmp/robin-memory-events-body -w '%{http_code}\n' \
   https://robin-cloud.vercel.app/api/memory-events
 
+# Unauthenticated memory search must stay sealed.
+curl -sS -o /tmp/robin-search-memory-body -w '%{http_code}\n' -X POST \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"deployment verification","limit":3,"minScore":0}' \
+  https://robin-cloud.vercel.app/api/search-memory
+
 # Admin-token recall should still work via the local wrapper.
 /home/caretaker/.hermes/scripts/robin-memory-recall \
   "deployment verification" --source hermes --limit 3
