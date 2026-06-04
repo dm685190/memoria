@@ -11,7 +11,14 @@ export async function GET(request: Request) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
-  const result: any = {
+  const result: {
+    hasSupabaseUrl: boolean;
+    hasSupabaseServiceRoleKey: boolean;
+    supabaseUrlLength: number;
+    serviceRoleKeyLength: number;
+    memoryEventsAccess: null | string;
+    healthCheckAccess: null | string;
+  } = {
     hasSupabaseUrl: !!supabaseUrl,
     hasSupabaseServiceRoleKey: !!supabaseServiceRoleKey,
     supabaseUrlLength: supabaseUrl?.length || 0,
@@ -25,7 +32,7 @@ export async function GET(request: Request) {
       const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
       
       // Test memory_events table
-      const { data: memData, error: memError } = await supabase
+      const { error: memError } = await supabase
         .from('memory_events')
         .select('count')
         .limit(1)
@@ -38,7 +45,7 @@ export async function GET(request: Request) {
       }
 
       // Test health_checks table (for comparison)
-      const { data: healthData, error: healthError } = await supabase
+      const { error: healthError } = await supabase
         .from('health_checks')
         .select('count')
         .limit(1)
@@ -49,8 +56,9 @@ export async function GET(request: Request) {
       } else {
         result.healthCheckAccess = `success: count retrieved`;
       }
-    } catch (err: any) {
-      result.memoryEventsAccess = `exception: ${err.message}`;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      result.memoryEventsAccess = `exception: ${message}`;
     }
   }
 

@@ -6,7 +6,7 @@ type MemoryEvent = {
   source: string;
   kind: string;
   summary: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
 };
 
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
       events: (data as MemoryEvent[]) ?? [],
       taxonomy: { sources, kinds },
     });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

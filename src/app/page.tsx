@@ -22,14 +22,10 @@ type MemoryEvent = {
   source: string;
   kind: string;
   summary: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
 };
 
-type RedisHealth = {
-  ok: boolean;
-  error: string | null;
-};
 
 async function getSupabaseHealth() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

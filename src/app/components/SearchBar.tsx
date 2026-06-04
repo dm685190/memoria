@@ -9,7 +9,7 @@ type SearchResult = {
   source: string;
   kind: string;
   summary: string;
-  metadata: Record<string, any> | null;
+  metadata: Record<string, unknown> | null;
   created_at: string;
   archived_at?: string | null;
   archived_by?: string | null;
@@ -88,6 +88,7 @@ export default function SearchBar() {
   }, [includeArchived]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadTaxonomy();
   }, [loadTaxonomy]);
 

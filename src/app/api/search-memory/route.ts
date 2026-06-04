@@ -7,7 +7,7 @@ type MemoryEvent = {
   source: string;
   kind: string;
   summary: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
   archived_at?: string | null;
   archived_by?: string | null;
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     let queryEmbedding: number[] = [];
     try {
       queryEmbedding = await getEmbedding(query, 'query');
-    } catch (embedError) {
+    } catch {
       return NextResponse.json(
         { error: 'Failed to generate query embedding' },
         { status: 500 }
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     const index = await getPineconeIndex();
 
     // Prepare Pinecone query with optional metadata filters
-    const pineconeQuery: any = {
+    const pineconeQuery = {
       vector: queryEmbedding,
       topK: filters && typeof filters === 'object' ? Math.min(Number(limit) * 4 || 40, 100) : Number(limit) || 10,
       includeMetadata: true,
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     const searchResults = await index.query(pineconeQuery);
 
     // Extract IDs from Pinecone results
-    const ids = searchResults.matches.map((match: any) => match.id);
+    const ids = searchResults.matches.map((match) => match.id);
 
     // Fetch full records from Supabase
     let events: MemoryEvent[] = [];
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
       events = data as MemoryEvent[];
     }
 
-    const matchById = new Map(searchResults.matches.map((match: any) => [match.id, match]));
+    const matchById = new Map(searchResults.matches.map((match) => [match.id, match]));
 
     const keywordFallbackIds = new Set<string>();
 
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
     // Format results with scores
     const results = events.map(event => {
       // Find the corresponding score from Pinecone matches
-      const match = matchById.get(event.id) as any;
+      const match = matchById.get(event.id);
       return {
         ...event,
         score: match ? match.score : (keywordFallbackIds.has(event.id) ? 0.5 : 0),

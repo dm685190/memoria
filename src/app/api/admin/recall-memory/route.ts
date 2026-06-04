@@ -86,8 +86,8 @@ export async function POST(request: Request) {
       includeMetadata: false,
     });
 
-    const ids = searchResults.matches.map((match: any) => match.id).filter(Boolean);
-    const matchById = new Map(searchResults.matches.map((match: any) => [match.id, match]));
+    const ids = searchResults.matches.map((match) => match.id).filter(Boolean);
+    const matchById = new Map(searchResults.matches.map((match) => [match.id, match]));
 
     let events: MemoryEvent[] = [];
     if (ids.length > 0) {
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
 
     const memories = events
       .map((event) => {
-        const match = matchById.get(event.id) as any;
+        const match = matchById.get(event.id);
         return {
           id: event.id,
           score: match?.score ?? 0,

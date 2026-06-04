@@ -93,4 +93,6 @@ export const checkPineconeHealth = async () => {
   }
 };
 
-export default { initPinecone, getPineconeIndex, getEmbedding, checkPineconeHealth };
+const pineconeHelpers = { initPinecone, getPineconeIndex, getEmbedding, checkPineconeHealth };
+
+export default pineconeHelpers;
