@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { getPineconeIndex, initPinecone } from '@/lib/pinecone';
+import { getEmbedding, getPineconeIndex, initPinecone } from '@/lib/pinecone';
 
 export type ArchivedMemoryEvent = {
   id: string;
@@ -85,6 +85,82 @@ export async function archiveMemoryEvent(id: string, archivedBy: string, archive
     status: 200,
     event: archivedEvent as ArchivedMemoryEvent,
     pineconeDeleted,
+    pineconeError,
+  };
+}
+
+
+export async function restoreMemoryEvent(id: string) {
+  const supabase = createSupabaseServiceClient();
+  const { data: existingEvent, error: selectError } = await supabase
+    .from('memory_events')
+    .select('id, source, kind, summary, created_at, archived_at, archived_by, archive_reason')
+    .eq('id', id)
+    .not('archived_at', 'is', null)
+    .single();
+
+  if (selectError || !existingEvent) {
+    return {
+      found: false as const,
+      status: 404,
+      error: 'Archived memory event not found',
+    };
+  }
+
+  let pineconeUpserted = false;
+  let pineconeError: string | null = null;
+
+  try {
+    const embedding = await getEmbedding(existingEvent.summary, 'passage');
+    await initPinecone();
+    const index = await getPineconeIndex();
+    await index.upsert({
+      records: [
+        {
+          id: existingEvent.id,
+          values: embedding,
+          metadata: {
+            source: existingEvent.source,
+            kind: existingEvent.kind,
+            summary: existingEvent.summary,
+            created_at: existingEvent.created_at,
+          },
+        },
+      ],
+    });
+    pineconeUpserted = true;
+  } catch (error) {
+    pineconeError = error instanceof Error ? error.message : String(error);
+    console.error('Pinecone restore upsert failed for memory event:', error);
+  }
+
+  const { data: restoredEvent, error: restoreError } = await supabase
+    .from('memory_events')
+    .update({
+      archived_at: null,
+      archived_by: null,
+      archive_reason: null,
+    })
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (restoreError) {
+    return {
+      found: true as const,
+      status: 500,
+      error: restoreError.message,
+      event: existingEvent as ArchivedMemoryEvent,
+      pineconeUpserted,
+      pineconeError,
+    };
+  }
+
+  return {
+    found: true as const,
+    status: 200,
+    event: restoredEvent as ArchivedMemoryEvent,
+    pineconeUpserted,
     pineconeError,
   };
 }

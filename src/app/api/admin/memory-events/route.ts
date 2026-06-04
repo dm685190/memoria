@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { getEmbedding, getPineconeIndex, initPinecone } from '@/lib/pinecone';
-import { archiveMemoryEvent, createSupabaseServiceClient, hardDeleteMemoryEvent } from '@/lib/memoryEvents';
+import { archiveMemoryEvent, createSupabaseServiceClient, restoreMemoryEvent, hardDeleteMemoryEvent } from '@/lib/memoryEvents';
 
 const MAX_SUMMARY_LENGTH = 8000;
 const MAX_FIELD_LENGTH = 120;
@@ -141,6 +141,35 @@ export async function DELETE(request: Request) {
       pineconeDeleted: result.pineconeDeleted,
       retentionDays: hardDelete ? undefined : 90,
       ...(result.pineconeError ? { warning: hardDelete ? 'Supabase row deleted but Pinecone delete failed' : 'Memory archived but Pinecone delete failed', pineconeError: result.pineconeError } : {}),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const status = message.startsWith('Missing required field') || message.includes('exceeds') ? 400 : 500;
+    return NextResponse.json({ error: message }, { status });
+  }
+}
+
+
+export async function PATCH(request: Request) {
+  try {
+    const auth = requireAdmin(request);
+    if (!auth.authorized) {
+      return auth.response;
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const id = cleanString(body.id, 'id', MAX_FIELD_LENGTH);
+    const result = await restoreMemoryEvent(id);
+
+    if (!result.found || result.error) {
+      return NextResponse.json({ error: result.error }, { status: result.status });
+    }
+
+    return NextResponse.json({
+      restored: true,
+      event: result.event,
+      pineconeUpserted: result.pineconeUpserted,
+      ...(result.pineconeError ? { warning: 'Memory restored but Pinecone upsert failed', pineconeError: result.pineconeError } : {}),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

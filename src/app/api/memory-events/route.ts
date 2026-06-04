@@ -10,24 +10,35 @@ type MemoryEvent = {
   created_at: string;
 };
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const includeArchived = new URL(request.url).searchParams.get('includeArchived') === 'true';
     const supabase = createSupabaseServiceClient();
-    const { data, error } = await supabase
+    let eventsQuery = supabase
       .from('memory_events')
       .select('*')
-      .is('archived_at', null)
       .order('created_at', { ascending: false })
       .limit(20);
+
+    if (!includeArchived) {
+      eventsQuery = eventsQuery.is('archived_at', null);
+    }
+
+    const { data, error } = await eventsQuery;
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const { data: taxonomyData, error: taxonomyError } = await supabase
+    let taxonomyQuery = supabase
       .from('memory_events')
-      .select('source, kind')
-      .is('archived_at', null);
+      .select('source, kind');
+
+    if (!includeArchived) {
+      taxonomyQuery = taxonomyQuery.is('archived_at', null);
+    }
+
+    const { data: taxonomyData, error: taxonomyError } = await taxonomyQuery;
 
     if (taxonomyError) {
       return NextResponse.json({ error: taxonomyError.message }, { status: 500 });

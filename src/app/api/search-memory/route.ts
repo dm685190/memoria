@@ -9,6 +9,9 @@ type MemoryEvent = {
   summary: string;
   metadata: Record<string, any>;
   created_at: string;
+  archived_at?: string | null;
+  archived_by?: string | null;
+  archive_reason?: string | null;
 };
 
 export async function POST(request: Request) {
@@ -17,7 +20,7 @@ export async function POST(request: Request) {
 
     // Parse request body
     const body = await request.json();
-    const { query, limit = 10, filters, minScore = 0 } = body;
+    const { query, limit = 10, filters, minScore = 0, includeArchived = false } = body;
 
     if (!query || typeof query !== 'string') {
       return NextResponse.json(
@@ -61,11 +64,16 @@ export async function POST(request: Request) {
     // Fetch full records from Supabase
     let events: MemoryEvent[] = [];
     if (ids.length > 0) {
-      const { data, error } = await supabase
+      let eventQuery = supabase
         .from('memory_events')
         .select('*')
-        .in('id', ids)
-        .is('archived_at', null);
+        .in('id', ids);
+
+      if (!includeArchived) {
+        eventQuery = eventQuery.is('archived_at', null);
+      }
+
+      const { data, error } = await eventQuery;
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -75,6 +83,34 @@ export async function POST(request: Request) {
     }
 
     const matchById = new Map(searchResults.matches.map((match: any) => [match.id, match]));
+
+    if (includeArchived) {
+      let archivedQuery = supabase
+        .from('memory_events')
+        .select('*')
+        .not('archived_at', 'is', null)
+        .ilike('summary', `%${query}%`)
+        .limit(Number(limit) || 10);
+
+      if (filters && typeof filters === 'object') {
+        const source = typeof filters.source === 'string' ? filters.source : '';
+        const kind = typeof filters.kind === 'string' ? filters.kind : '';
+        if (source) archivedQuery = archivedQuery.eq('source', source);
+        if (kind) archivedQuery = archivedQuery.eq('kind', kind);
+      }
+
+      const { data: archivedData, error: archivedError } = await archivedQuery;
+      if (archivedError) {
+        return NextResponse.json({ error: archivedError.message }, { status: 500 });
+      }
+
+      const existingIds = new Set(events.map((event) => event.id));
+      for (const archivedEvent of (archivedData ?? []) as MemoryEvent[]) {
+        if (!existingIds.has(archivedEvent.id)) {
+          events.push(archivedEvent);
+        }
+      }
+    }
 
     // Apply filtering if filters provided. Only allow safe top-level fields.
     if (filters && typeof filters === 'object') {
@@ -93,7 +129,7 @@ export async function POST(request: Request) {
       const match = matchById.get(event.id) as any;
       return {
         ...event,
-        score: match ? match.score : 0,
+        score: match ? match.score : (event.archived_at ? 0.001 : 0),
       };
     }).filter(event => (event.score || 0) >= minimumScore);
 

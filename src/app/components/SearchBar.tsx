@@ -11,6 +11,9 @@ type SearchResult = {
   summary: string;
   metadata: Record<string, any> | null;
   created_at: string;
+  archived_at?: string | null;
+  archived_by?: string | null;
+  archive_reason?: string | null;
   score: number;
 };
 
@@ -39,12 +42,14 @@ export default function SearchBar() {
   const [taxonomy, setTaxonomy] = useState<Taxonomy>(FALLBACK_TAXONOMY);
   const [errorMessage, setErrorMessage] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [includeArchived, setIncludeArchived] = useState(false);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
 
   const loadTaxonomy = useCallback(async () => {
     setTaxonomyState('loading');
 
     try {
-      const res = await fetch(`/api/memory-events?bust=${Date.now()}`);
+      const res = await fetch(`/api/memory-events?includeArchived=${includeArchived}&bust=${Date.now()}`);
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || `Taxonomy failed: ${res.status}`);
@@ -67,7 +72,7 @@ export default function SearchBar() {
       setTaxonomy(FALLBACK_TAXONOMY);
       setTaxonomyState('error');
     }
-  }, []);
+  }, [includeArchived]);
 
   useEffect(() => {
     loadTaxonomy();
@@ -107,7 +112,7 @@ export default function SearchBar() {
         throw new Error(data.error || `Delete failed: ${res.status}`);
       }
 
-      setSearchResults((results) => results.filter((result) => result.id !== id));
+      setSearchResults((results) => includeArchived ? results.map((result) => result.id === id ? { ...result, ...data.event, score: result.score } : result) : results.filter((result) => result.id !== id));
       window.dispatchEvent(new CustomEvent('memory-events-changed'));
       router.refresh();
     } catch (error) {
@@ -115,6 +120,34 @@ export default function SearchBar() {
       setSearchState('error');
     } finally {
       setDeletingId(null);
+    }
+  };
+
+
+  const handleRestore = async (id: string) => {
+    setRestoringId(id);
+    setErrorMessage('');
+
+    try {
+      const res = await fetch('/api/dashboard/memory-events', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `Restore failed: ${res.status}`);
+      }
+
+      setSearchResults((results) => results.map((result) => result.id === id ? { ...result, ...data.event, score: result.score } : result));
+      window.dispatchEvent(new CustomEvent('memory-events-changed'));
+      router.refresh();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Restore failed');
+      setSearchState('error');
+    } finally {
+      setRestoringId(null);
     }
   };
 
@@ -145,6 +178,7 @@ export default function SearchBar() {
           query,
           limit: 10,
           minScore: Number(minScore) || 0,
+          includeArchived,
           filters: Object.keys(filters).length ? filters : undefined,
         }),
       });
@@ -222,6 +256,14 @@ export default function SearchBar() {
             onChange={(e) => setMinScore(e.target.value)}
           />
         </label>
+        <label className={styles.checkboxFilter}>
+          <input
+            type="checkbox"
+            checked={includeArchived}
+            onChange={(e) => setIncludeArchived(e.target.checked)}
+          />
+          Include archived
+        </label>
       </div>
 
       <p className={styles.filterHint}>
@@ -230,7 +272,7 @@ export default function SearchBar() {
           : taxonomyState === 'error'
             ? 'Using fallback filters; live taxonomy could not be loaded.'
             : `Filters loaded from ${taxonomy.sources.length} source${taxonomy.sources.length === 1 ? '' : 's'} and ${taxonomy.kinds.length} kind${taxonomy.kinds.length === 1 ? '' : 's'}.`}
-        {' '}Scores closer to 1 are stronger semantic matches.
+        {' '}Scores closer to 1 are stronger semantic matches. Archived results use keyword fallback until restored.
       </p>
 
       {searchState === 'error' && (
@@ -255,15 +297,30 @@ export default function SearchBar() {
                   <p>{result.summary}</p>
                   <small className={styles.searchResultMeta}>
                     {new Date(result.created_at).toLocaleString()} &bull; {result.source}
+                    {result.archived_at ? ` • archived ${new Date(result.archived_at).toLocaleString()}` : ''}
                   </small>
-                  <button
-                    type="button"
-                    className={styles.dangerButton}
-                    disabled={deletingId === result.id}
-                    onClick={() => handleDelete(result.id)}
-                  >
-                    {deletingId === result.id ? 'Archiving...' : 'Archive memory'}
-                  </button>
+                  {result.archived_at && (
+                    <div className={styles.archiveBadge}>Archived{result.archive_reason ? `: ${result.archive_reason}` : ''}</div>
+                  )}
+                  {result.archived_at ? (
+                    <button
+                      type="button"
+                      className={styles.restoreButton}
+                      disabled={restoringId === result.id}
+                      onClick={() => handleRestore(result.id)}
+                    >
+                      {restoringId === result.id ? 'Restoring...' : 'Restore memory'}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.dangerButton}
+                      disabled={deletingId === result.id}
+                      onClick={() => handleDelete(result.id)}
+                    >
+                      {deletingId === result.id ? 'Archiving...' : 'Archive memory'}
+                    </button>
+                  )}
                   {result.metadata && Object.keys(result.metadata).length > 0 && (
                     <details className={styles.metadataDetails}>
                       <summary>metadata</summary>

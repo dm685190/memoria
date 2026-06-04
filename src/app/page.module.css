@@ -629,3 +629,59 @@
 .copyButton:hover {
   background: rgba(245, 166, 201, 0.16);
 }
+
+
+.inlineToggle,
+.checkboxFilter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #b7a5c6;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.checkboxFilter {
+  justify-content: start;
+  align-self: end;
+}
+
+.checkboxFilter input,
+.inlineToggle input {
+  width: auto;
+  accent-color: #f5a6c9;
+}
+
+.archiveBadge {
+  display: inline-block;
+  margin-top: 0.55rem;
+  border: 1px solid rgba(189, 162, 255, 0.34);
+  border-radius: 999px;
+  padding: 0.22rem 0.55rem;
+  background: rgba(189, 162, 255, 0.1);
+  color: #d9cbe4;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.restoreButton {
+  margin-top: 0.75rem;
+  border: 1px solid rgba(16, 185, 129, 0.38);
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  color: #bbf7d0;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.restoreButton:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.18);
+}
+
+.restoreButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}

@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { getEmbedding, getPineconeIndex, initPinecone } from '@/lib/pinecone';
-import { archiveMemoryEvent, createSupabaseServiceClient } from '@/lib/memoryEvents';
+import { archiveMemoryEvent, createSupabaseServiceClient, restoreMemoryEvent } from '@/lib/memoryEvents';
 
 const MAX_SUMMARY_LENGTH = 8000;
 const MAX_FIELD_LENGTH = 120;
@@ -134,6 +134,35 @@ export async function DELETE(request: Request) {
       pineconeDeleted: result.pineconeDeleted,
       retentionDays: 90,
       ...(result.pineconeError ? { warning: 'Memory archived but Pinecone delete failed', pineconeError: result.pineconeError } : {}),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const status = message.startsWith('Missing required field') || message.includes('exceeds') ? 400 : 500;
+    return NextResponse.json({ error: message }, { status });
+  }
+}
+
+
+export async function PATCH(request: Request) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const id = cleanString(body.id, 'id', MAX_FIELD_LENGTH);
+    const result = await restoreMemoryEvent(id);
+
+    if (!result.found || result.error) {
+      return NextResponse.json({ error: result.error }, { status: result.status });
+    }
+
+    return NextResponse.json({
+      restored: true,
+      event: result.event,
+      pineconeUpserted: result.pineconeUpserted,
+      ...(result.pineconeError ? { warning: 'Memory restored but Pinecone upsert failed', pineconeError: result.pineconeError } : {}),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

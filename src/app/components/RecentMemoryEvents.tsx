@@ -10,6 +10,9 @@ type MemoryEvent = {
   summary: string;
   metadata: Record<string, unknown> | null;
   created_at: string;
+  archived_at?: string | null;
+  archived_by?: string | null;
+  archive_reason?: string | null;
 };
 
 type LoadState = 'idle' | 'loading' | 'ready' | 'error';
@@ -24,13 +27,15 @@ export default function RecentMemoryEvents({ initialEvents }: Props) {
   const [message, setMessage] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [includeArchived, setIncludeArchived] = useState(false);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
 
   const loadEvents = useCallback(async () => {
     setState('loading');
     setMessage('');
 
     try {
-      const res = await fetch(`/api/memory-events?bust=${Date.now()}`);
+      const res = await fetch(`/api/memory-events?includeArchived=${includeArchived}&bust=${Date.now()}`);
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || `Recent memory load failed: ${res.status}`);
@@ -41,7 +46,7 @@ export default function RecentMemoryEvents({ initialEvents }: Props) {
       setMessage(error instanceof Error ? error.message : 'Recent memory load failed');
       setState('error');
     }
-  }, []);
+  }, [includeArchived]);
 
   useEffect(() => {
     const handleChanged = () => loadEvents();
@@ -77,7 +82,7 @@ export default function RecentMemoryEvents({ initialEvents }: Props) {
       if (!res.ok) {
         throw new Error(data.error || `Delete failed: ${res.status}`);
       }
-      setEvents((current) => current.filter((event) => event.id !== id));
+      setEvents((current) => includeArchived ? current.map((event) => event.id === id ? data.event : event) : current.filter((event) => event.id !== id));
       window.dispatchEvent(new CustomEvent('memory-events-changed'));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Delete failed');
@@ -87,11 +92,40 @@ export default function RecentMemoryEvents({ initialEvents }: Props) {
     }
   };
 
+
+  const handleRestore = async (id: string) => {
+    setRestoringId(id);
+    setMessage('');
+
+    try {
+      const res = await fetch('/api/dashboard/memory-events', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `Restore failed: ${res.status}`);
+      }
+      setEvents((current) => current.map((event) => event.id === id ? data.event : event));
+      window.dispatchEvent(new CustomEvent('memory-events-changed'));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Restore failed');
+      setState('error');
+    } finally {
+      setRestoringId(null);
+    }
+  };
+
   return (
     <div className={styles.memorySection}>
       <div className={styles.sectionHeader}>
         <span>Recent memory events</span>
         <small>{events.length} loaded</small>
+        <label className={styles.inlineToggle}>
+          <input type="checkbox" checked={includeArchived} onChange={(e) => setIncludeArchived(e.target.checked)} />
+          Include archived
+        </label>
         <button type="button" className={styles.refreshButton} onClick={loadEvents} disabled={state === 'loading'}>
           {state === 'loading' ? 'Refreshing...' : 'Refresh recent'}
         </button>
@@ -109,7 +143,11 @@ export default function RecentMemoryEvents({ initialEvents }: Props) {
               <br />
               <small className={styles.metadata}>
                 {new Date(event.created_at).toLocaleString()} • {event.source}
+                {event.archived_at ? ` • archived ${new Date(event.archived_at).toLocaleString()}` : ''}
               </small>
+              {event.archived_at && (
+                <div className={styles.archiveBadge}>Archived{event.archive_reason ? `: ${event.archive_reason}` : ''}</div>
+              )}
               <div className={styles.memoryActions}>
                 <button type="button" className={styles.copyButton} onClick={() => copyText(event.id, event.id, 'id')}>
                   {copiedId === `id:${event.id}` ? 'Copied ID' : 'Copy ID'}
@@ -117,14 +155,25 @@ export default function RecentMemoryEvents({ initialEvents }: Props) {
                 <button type="button" className={styles.copyButton} onClick={() => copyText(JSON.stringify(event, null, 2), event.id, 'json')}>
                   {copiedId === `json:${event.id}` ? 'Copied JSON' : 'Copy JSON'}
                 </button>
-                <button
-                  type="button"
-                  className={styles.dangerButton}
-                  disabled={deletingId === event.id}
-                  onClick={() => handleDelete(event.id)}
-                >
-                  {deletingId === event.id ? 'Archiving...' : 'Archive memory'}
-                </button>
+                {event.archived_at ? (
+                  <button
+                    type="button"
+                    className={styles.restoreButton}
+                    disabled={restoringId === event.id}
+                    onClick={() => handleRestore(event.id)}
+                  >
+                    {restoringId === event.id ? 'Restoring...' : 'Restore memory'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.dangerButton}
+                    disabled={deletingId === event.id}
+                    onClick={() => handleDelete(event.id)}
+                  >
+                    {deletingId === event.id ? 'Archiving...' : 'Archive memory'}
+                  </button>
+                )}
               </div>
             </li>
           ))}
