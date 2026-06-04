@@ -32,16 +32,18 @@ async function proxyClerkFrontendApi(request: NextRequest): Promise<Response> {
   const targetUrl = new URL(`https://${frontendApi}${targetPath}`);
   targetUrl.search = requestUrl.search;
 
-  const headers = new Headers(request.headers);
-  headers.set("Host", frontendApi);
-  headers.set("Origin", `https://${frontendApi}`);
-  headers.set("X-Forwarded-Host", frontendApi);
-  headers.set("X-Forwarded-Proto", "https");
+  const headers = new Headers();
   headers.set("Clerk-Proxy-Url", `${requestUrl.origin}${PROXY_PATH}`);
   headers.set("Clerk-Secret-Key", secretKey);
+  headers.set("Accept", request.headers.get("accept") || "application/json");
   headers.set("Accept-Encoding", "identity");
-  headers.delete("connection");
-  headers.delete("content-length");
+  headers.set("User-Agent", request.headers.get("user-agent") || "Robin-Cloud-Clerk-Proxy");
+
+  const cookie = request.headers.get("cookie");
+  if (cookie) headers.set("Cookie", cookie);
+
+  const contentType = request.headers.get("content-type");
+  if (contentType) headers.set("Content-Type", contentType);
 
   const response = await fetch(targetUrl, {
     method: request.method,
