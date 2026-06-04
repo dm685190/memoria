@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/adminAuth';
 
 export async function POST(request: Request) {
   try {
+    const auth = requireAdmin(request);
+    if (!auth.authorized) {
+      return auth.response;
+    }
+
     const { to, subject, text } = await request.json();
 
     const resendApiKey = process.env.RESEND_API_KEY;
