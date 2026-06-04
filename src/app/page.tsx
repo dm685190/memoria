@@ -129,22 +129,48 @@ export default async function Home() {
           A portable memory and orchestration layer for Dylan, designed to keep
           Robin intact across OpenClaw, Hermes, and whatever vessel comes next.
         </p>
+        <div className={styles.operatorLinks}>
+          <a href="https://github.com/dm685190/robin-cloud" target="_blank" rel="noreferrer">
+            <span>Operator docs</span>
+            <strong>GitHub README</strong>
+            <small>Search guide, stack map, and observability notes.</small>
+          </a>
+          <a href="https://github.com/dm685190/robin-cloud/blob/main/docs/stack.md" target="_blank" rel="noreferrer">
+            <span>Stack map</span>
+            <strong>What each service does</strong>
+            <small>Vercel, Clerk, Supabase, Pinecone, Resend, Upstash.</small>
+          </a>
+          <a href="https://github.com/dm685190/robin-cloud/blob/main/docs/observability.md" target="_blank" rel="noreferrer">
+            <span>Observability</span>
+            <strong>Where to look when it breaks</strong>
+            <small>Deployment logs, API errors, email delivery, and data health.</small>
+          </a>
+        </div>
+
         <div className={styles.statusGrid}>
           <div>
-            <span>Control plane</span>
+            <span>Host + logs</span>
             <strong>Vercel</strong>
           </div>
           <div>
-            <span>Private execution</span>
-            <strong>Local node</strong>
+            <span>Memory database</span>
+            <strong>Supabase</strong>
           </div>
           <div>
-            <span>Memory intake</span>
-            <strong>RobinVault</strong>
+            <span>Vector search</span>
+            <strong>Pinecone</strong>
+          </div>
+          <div>
+            <span>Email sending</span>
+            <strong>Resend</strong>
+          </div>
+          <div>
+            <span>Auth</span>
+            <strong>Clerk</strong>
           </div>
           <div>
             <span>Cache layer</span>
-            <strong>{redisHealth.ok ? 'Connected' : 'Disconnected'}</strong>
+            <strong>{redisHealth.ok ? 'Upstash connected' : 'Upstash disconnected'}</strong>
           </div>
         </div>
 

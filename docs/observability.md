@@ -22,7 +22,7 @@ Look for the `robin-cloud` project under the GitHub-connected Vercel account/tea
 - Supabase: <https://supabase.com/dashboard>
 - Pinecone: <https://app.pinecone.io/>
 - Clerk: <https://dashboard.clerk.com/>
-- Resend: <https://resend.com/emails>
+- Resend: <https://resend.com/emails> — outbound email delivery and email test logs
 - Upstash: <https://console.upstash.com/>
 
 ## What to check when something breaks
@@ -61,9 +61,12 @@ Look for the `robin-cloud` project under the GitHub-connected Vercel account/tea
 
 ### Email test/send broken
 
+Resend is only responsible for outbound email delivery. It does not store memory, run search, or host the dashboard.
+
 1. Vercel logs for `/api/send-email`.
 2. Resend activity/errors at <https://resend.com/emails>.
-3. `RESEND_API_KEY` in Vercel.
+3. Check whether Resend is in sandbox/verified-recipient mode.
+4. `RESEND_API_KEY` in Vercel.
 
 ## Local verification commands
 

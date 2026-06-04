@@ -50,9 +50,11 @@ Robin Cloud is a private memory and observability-adjacent dashboard for OpenCla
 ### Resend
 
 - Site: <https://resend.com/emails>
-- Role: email sending/testing.
-- Used by: `/api/send-email` and email test surfaces.
-- Watch for: delivery failures, API key validity, sender/domain issues.
+- Role: transactional email delivery.
+- Plain English: Resend is the service Robin Cloud calls when it needs to send an email. It is like Stripe for email delivery: the app sends Resend an API request, and Resend handles the actual outbound email, delivery status, and provider errors.
+- Used by: `/api/send-email` and the signed-in email test surface.
+- Current importance: useful for testing/notifications; not part of memory storage or semantic search.
+- Watch for: delivery failures, sandbox/verified-recipient limits, API key validity, sender/domain issues.
 
 ### Upstash Redis
 
