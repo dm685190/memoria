@@ -84,6 +84,8 @@ export async function POST(request: Request) {
 
     const matchById = new Map(searchResults.matches.map((match: any) => [match.id, match]));
 
+    const keywordFallbackIds = new Set<string>();
+
     if (includeArchived) {
       let archivedQuery = supabase
         .from('memory_events')
@@ -106,6 +108,7 @@ export async function POST(request: Request) {
 
       const existingIds = new Set(events.map((event) => event.id));
       for (const archivedEvent of (archivedData ?? []) as MemoryEvent[]) {
+        keywordFallbackIds.add(archivedEvent.id);
         if (!existingIds.has(archivedEvent.id)) {
           events.push(archivedEvent);
         }
@@ -129,7 +132,7 @@ export async function POST(request: Request) {
       const match = matchById.get(event.id) as any;
       return {
         ...event,
-        score: match ? match.score : (event.archived_at ? 0.001 : 0),
+        score: match ? match.score : (keywordFallbackIds.has(event.id) ? 0.5 : 0),
       };
     }).filter(event => (event.score || 0) >= minimumScore);
 
