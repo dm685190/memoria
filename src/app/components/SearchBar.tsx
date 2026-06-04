@@ -30,6 +30,14 @@ const FALLBACK_TAXONOMY: Taxonomy = {
   kinds: ['decision', 'deployment', 'milestone', 'system'],
 };
 
+const MEMORY_LENSES = [
+  { label: 'Deployments', query: 'production deployment shipped verified', kind: 'deployment' },
+  { label: 'Decisions', query: 'architecture product decision rationale', kind: 'decision' },
+  { label: 'Errors & fixes', query: 'error failure blocker fix regression', kind: 'error' },
+  { label: 'Milestones', query: 'milestone completed shipped capability', kind: 'milestone' },
+  { label: 'Handoffs', query: 'handoff current state blockers next verification', kind: 'handoff' },
+];
+
 function compactSearchContext(result: SearchResult) {
   return `(${result.source}/${result.kind} score=${result.score?.toFixed(3)} created=${result.created_at}${result.archived_at ? ' archived=true' : ''}) ${result.summary}`;
 }
@@ -167,19 +175,14 @@ export default function SearchBar() {
     }
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const query = searchQuery.trim();
-    if (!query) {
-      setSearchResults([]);
-      setSearchState('idle');
-      setErrorMessage('');
-      return;
-    }
-
+  const runSearch = async (query: string, overrides?: { source?: string; kind?: string; minScore?: string }) => {
     const filters: Record<string, string> = {};
-    if (sourceFilter) filters.source = sourceFilter;
-    if (kindFilter) filters.kind = kindFilter;
+    const source = overrides?.source ?? sourceFilter;
+    const kind = overrides?.kind ?? kindFilter;
+    const score = overrides?.minScore ?? minScore;
+
+    if (source) filters.source = source;
+    if (kind) filters.kind = kind;
 
     setSearchState('loading');
     setErrorMessage('');
@@ -193,7 +196,7 @@ export default function SearchBar() {
         body: JSON.stringify({
           query,
           limit: 10,
-          minScore: Number(minScore) || 0,
+          minScore: Number(score) || 0,
           includeArchived,
           filters: Object.keys(filters).length ? filters : undefined,
         }),
@@ -212,6 +215,26 @@ export default function SearchBar() {
       setErrorMessage(error instanceof Error ? error.message : 'Search failed');
       setSearchState('error');
     }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) {
+      setSearchResults([]);
+      setSearchState('idle');
+      setErrorMessage('');
+      return;
+    }
+    await runSearch(query);
+  };
+
+  const handleLens = async (lens: typeof MEMORY_LENSES[number]) => {
+    setSearchQuery(lens.query);
+    setSourceFilter('openclaw');
+    setKindFilter(lens.kind);
+    setMinScore('0');
+    await runSearch(lens.query, { source: 'openclaw', kind: lens.kind, minScore: '0' });
   };
 
   return (
@@ -290,6 +313,23 @@ export default function SearchBar() {
             : `Filters loaded from ${taxonomy.sources.length} source${taxonomy.sources.length === 1 ? '' : 's'} and ${taxonomy.kinds.length} kind${taxonomy.kinds.length === 1 ? '' : 's'}.`}
         {' '}Scores closer to 1 are stronger semantic matches. Archived results use keyword fallback until restored.
       </p>
+
+      <div className={styles.memoryLenses}>
+        <span>Memory lenses</span>
+        <div>
+          {MEMORY_LENSES.map((lens) => (
+            <button
+              key={lens.label}
+              type="button"
+              className={styles.lensButton}
+              disabled={searchState === 'loading'}
+              onClick={() => handleLens(lens)}
+            >
+              {lens.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {searchState === 'error' && (
         <p className={styles.searchError}>{errorMessage}</p>
