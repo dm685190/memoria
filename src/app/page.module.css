@@ -685,3 +685,73 @@
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+.memoryDetails {
+  margin-top: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.035);
+  color: #d9cbe4;
+  font-size: 0.8rem;
+}
+
+.memoryDetails summary {
+  cursor: pointer;
+  color: #e9a7c7;
+  font-weight: 700;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 0.85rem 0;
+}
+
+.detailGrid div {
+  min-width: 0;
+}
+
+.detailGrid dt,
+.detailBlock span {
+  display: block;
+  margin: 0 0 0.22rem;
+  color: #9a89b4;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detailGrid dd {
+  overflow-wrap: anywhere;
+  margin: 0;
+  color: #f7eefc;
+}
+
+.detailBlock {
+  margin-top: 0.75rem;
+}
+
+.detailBlock p {
+  margin: 0;
+  color: #f7eefc;
+  line-height: 1.55;
+}
+
+.detailBlock pre {
+  overflow-x: auto;
+  margin: 0;
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.28);
+  color: #d9cbe4;
+  font-size: 0.74rem;
+}
+
+@media (max-width: 640px) {
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+}

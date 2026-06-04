@@ -21,6 +21,10 @@ type Props = {
   initialEvents: MemoryEvent[];
 };
 
+function compactMemoryContext(event: MemoryEvent) {
+  return `(${event.source}/${event.kind} created=${event.created_at}${event.archived_at ? ' archived=true' : ''}) ${event.summary}`;
+}
+
 export default function RecentMemoryEvents({ initialEvents }: Props) {
   const [events, setEvents] = useState<MemoryEvent[]>(initialEvents);
   const [state, setState] = useState<LoadState>('idle');
@@ -155,6 +159,9 @@ export default function RecentMemoryEvents({ initialEvents }: Props) {
                 <button type="button" className={styles.copyButton} onClick={() => copyText(JSON.stringify(event, null, 2), event.id, 'json')}>
                   {copiedId === `json:${event.id}` ? 'Copied JSON' : 'Copy JSON'}
                 </button>
+                <button type="button" className={styles.copyButton} onClick={() => copyText(compactMemoryContext(event), event.id, 'context')}>
+                  {copiedId === `context:${event.id}` ? 'Copied context' : 'Copy context'}
+                </button>
                 {event.archived_at ? (
                   <button
                     type="button"
@@ -175,6 +182,28 @@ export default function RecentMemoryEvents({ initialEvents }: Props) {
                   </button>
                 )}
               </div>
+              <details className={styles.memoryDetails}>
+                <summary>Details</summary>
+                <dl className={styles.detailGrid}>
+                  <div><dt>ID</dt><dd>{event.id}</dd></div>
+                  <div><dt>Source</dt><dd>{event.source}</dd></div>
+                  <div><dt>Kind</dt><dd>{event.kind}</dd></div>
+                  <div><dt>Created</dt><dd>{new Date(event.created_at).toLocaleString()}</dd></div>
+                  {event.archived_at && <div><dt>Archived</dt><dd>{new Date(event.archived_at).toLocaleString()}</dd></div>}
+                  {event.archived_by && <div><dt>Archived by</dt><dd>{event.archived_by}</dd></div>}
+                  {event.archive_reason && <div><dt>Archive reason</dt><dd>{event.archive_reason}</dd></div>}
+                </dl>
+                <div className={styles.detailBlock}>
+                  <span>Summary</span>
+                  <p>{event.summary}</p>
+                </div>
+                {event.metadata && Object.keys(event.metadata).length > 0 && (
+                  <div className={styles.detailBlock}>
+                    <span>Metadata</span>
+                    <pre>{JSON.stringify(event.metadata, null, 2)}</pre>
+                  </div>
+                )}
+              </details>
             </li>
           ))}
         </ul>

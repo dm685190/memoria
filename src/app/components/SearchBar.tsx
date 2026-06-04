@@ -30,6 +30,10 @@ const FALLBACK_TAXONOMY: Taxonomy = {
   kinds: ['decision', 'deployment', 'milestone', 'system'],
 };
 
+function compactSearchContext(result: SearchResult) {
+  return `(${result.source}/${result.kind} score=${result.score?.toFixed(3)} created=${result.created_at}${result.archived_at ? ' archived=true' : ''}) ${result.summary}`;
+}
+
 export default function SearchBar() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,6 +48,7 @@ export default function SearchBar() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [includeArchived, setIncludeArchived] = useState(false);
   const [restoringId, setRestoringId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const loadTaxonomy = useCallback(async () => {
     setTaxonomyState('loading');
@@ -91,6 +96,17 @@ export default function SearchBar() {
   const handleRefresh = () => {
     loadTaxonomy();
     router.refresh();
+  };
+
+  const copyText = async (text: string, id: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(`${label}:${id}`);
+      setTimeout(() => setCopiedId(null), 1800);
+    } catch {
+      setErrorMessage('Clipboard write failed');
+      setSearchState('error');
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -302,31 +318,59 @@ export default function SearchBar() {
                   {result.archived_at && (
                     <div className={styles.archiveBadge}>Archived{result.archive_reason ? `: ${result.archive_reason}` : ''}</div>
                   )}
-                  {result.archived_at ? (
-                    <button
-                      type="button"
-                      className={styles.restoreButton}
-                      disabled={restoringId === result.id}
-                      onClick={() => handleRestore(result.id)}
-                    >
-                      {restoringId === result.id ? 'Restoring...' : 'Restore memory'}
+                  <div className={styles.memoryActions}>
+                    <button type="button" className={styles.copyButton} onClick={() => copyText(result.id, result.id, 'id')}>
+                      {copiedId === `id:${result.id}` ? 'Copied ID' : 'Copy ID'}
                     </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.dangerButton}
-                      disabled={deletingId === result.id}
-                      onClick={() => handleDelete(result.id)}
-                    >
-                      {deletingId === result.id ? 'Archiving...' : 'Archive memory'}
+                    <button type="button" className={styles.copyButton} onClick={() => copyText(JSON.stringify(result, null, 2), result.id, 'json')}>
+                      {copiedId === `json:${result.id}` ? 'Copied JSON' : 'Copy JSON'}
                     </button>
-                  )}
-                  {result.metadata && Object.keys(result.metadata).length > 0 && (
-                    <details className={styles.metadataDetails}>
-                      <summary>metadata</summary>
-                      <pre>{JSON.stringify(result.metadata, null, 2)}</pre>
-                    </details>
-                  )}
+                    <button type="button" className={styles.copyButton} onClick={() => copyText(compactSearchContext(result), result.id, 'context')}>
+                      {copiedId === `context:${result.id}` ? 'Copied context' : 'Copy context'}
+                    </button>
+                    {result.archived_at ? (
+                      <button
+                        type="button"
+                        className={styles.restoreButton}
+                        disabled={restoringId === result.id}
+                        onClick={() => handleRestore(result.id)}
+                      >
+                        {restoringId === result.id ? 'Restoring...' : 'Restore memory'}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className={styles.dangerButton}
+                        disabled={deletingId === result.id}
+                        onClick={() => handleDelete(result.id)}
+                      >
+                        {deletingId === result.id ? 'Archiving...' : 'Archive memory'}
+                      </button>
+                    )}
+                  </div>
+                  <details className={styles.memoryDetails}>
+                    <summary>Details</summary>
+                    <dl className={styles.detailGrid}>
+                      <div><dt>ID</dt><dd>{result.id}</dd></div>
+                      <div><dt>Source</dt><dd>{result.source}</dd></div>
+                      <div><dt>Kind</dt><dd>{result.kind}</dd></div>
+                      <div><dt>Score</dt><dd>{result.score?.toFixed(3)}</dd></div>
+                      <div><dt>Created</dt><dd>{new Date(result.created_at).toLocaleString()}</dd></div>
+                      {result.archived_at && <div><dt>Archived</dt><dd>{new Date(result.archived_at).toLocaleString()}</dd></div>}
+                      {result.archived_by && <div><dt>Archived by</dt><dd>{result.archived_by}</dd></div>}
+                      {result.archive_reason && <div><dt>Archive reason</dt><dd>{result.archive_reason}</dd></div>}
+                    </dl>
+                    <div className={styles.detailBlock}>
+                      <span>Summary</span>
+                      <p>{result.summary}</p>
+                    </div>
+                    {result.metadata && Object.keys(result.metadata).length > 0 && (
+                      <div className={styles.detailBlock}>
+                        <span>Metadata</span>
+                        <pre>{JSON.stringify(result.metadata, null, 2)}</pre>
+                      </div>
+                    )}
+                  </details>
                 </div>
               </li>
             ))}
