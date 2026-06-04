@@ -34,6 +34,9 @@ async function proxyClerkFrontendApi(request: NextRequest): Promise<Response> {
 
   const headers = new Headers(request.headers);
   headers.set("Host", frontendApi);
+  headers.set("Origin", `https://${frontendApi}`);
+  headers.set("X-Forwarded-Host", frontendApi);
+  headers.set("X-Forwarded-Proto", "https");
   headers.set("Clerk-Proxy-Url", `${requestUrl.origin}${PROXY_PATH}`);
   headers.set("Clerk-Secret-Key", secretKey);
   headers.set("Accept-Encoding", "identity");
