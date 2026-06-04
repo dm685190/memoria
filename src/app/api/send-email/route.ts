@@ -1,11 +1,12 @@
+import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/adminAuth';
+import { isAdminAuthorized } from '@/lib/adminAuth';
 
 export async function POST(request: Request) {
   try {
-    const auth = requireAdmin(request);
-    if (!auth.authorized) {
-      return auth.response;
+    const { userId } = await auth();
+    if (!userId && !isAdminAuthorized(request)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { to, subject, text } = await request.json();

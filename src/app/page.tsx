@@ -4,6 +4,7 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import EmailTest from "../components/EmailTest";
 import SearchBar from "./components/SearchBar";
@@ -99,9 +100,10 @@ async function getMemoryEvents(): Promise<MemoryEvent[]> {
 }
 
 export default async function Home() {
+  const { userId } = await auth();
   const [health, events, redisHealth] = await Promise.all([
     getSupabaseHealth(),
-    getMemoryEvents(),
+    userId ? getMemoryEvents() : Promise.resolve([]),
     checkRedisHealth(),
   ]);
 
@@ -187,7 +189,14 @@ export default async function Home() {
           <MemoryIngestForm />
         </Show>
 
-        <RecentMemoryEvents initialEvents={events} />
+        <Show when="signed-in">
+          <RecentMemoryEvents initialEvents={events} />
+        </Show>
+        <Show when="signed-out">
+          <p className={styles.signedInNote}>
+            Sign in to search, ingest, and inspect Robin Cloud memories.
+          </p>
+        </Show>
 
         <div className={redisHealth.ok ? styles.healthOk : styles.healthWarning}>
           <span>Upstash Redis</span>
