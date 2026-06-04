@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { getEmbedding, getPineconeIndex, initPinecone } from '@/lib/pinecone';
-import { createSupabaseServiceClient, hardDeleteMemoryEvent } from '@/lib/memoryEvents';
+import { archiveMemoryEvent, createSupabaseServiceClient } from '@/lib/memoryEvents';
 
 const MAX_SUMMARY_LENGTH = 8000;
 const MAX_FIELD_LENGTH = 120;
@@ -122,17 +122,18 @@ export async function DELETE(request: Request) {
 
     const body = await request.json().catch(() => ({}));
     const id = cleanString(body.id, 'id', MAX_FIELD_LENGTH);
-    const result = await hardDeleteMemoryEvent(id);
+    const result = await archiveMemoryEvent(id, `clerk:${userId}`, 'Dashboard archive request');
 
     if (!result.found || result.error) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
     return NextResponse.json({
-      deleted: true,
-      id: result.event.id,
+      archived: true,
+      event: result.event,
       pineconeDeleted: result.pineconeDeleted,
-      ...(result.pineconeError ? { warning: 'Supabase row deleted but Pinecone delete failed', pineconeError: result.pineconeError } : {}),
+      retentionDays: 90,
+      ...(result.pineconeError ? { warning: 'Memory archived but Pinecone delete failed', pineconeError: result.pineconeError } : {}),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { getEmbedding, getPineconeIndex, initPinecone } from '@/lib/pinecone';
-import { createSupabaseServiceClient, hardDeleteMemoryEvent } from '@/lib/memoryEvents';
+import { archiveMemoryEvent, createSupabaseServiceClient, hardDeleteMemoryEvent } from '@/lib/memoryEvents';
 
 const MAX_SUMMARY_LENGTH = 8000;
 const MAX_FIELD_LENGTH = 120;
@@ -122,17 +122,25 @@ export async function DELETE(request: Request) {
 
     const body = await request.json().catch(() => ({}));
     const id = cleanString(body.id, 'id', MAX_FIELD_LENGTH);
-    const result = await hardDeleteMemoryEvent(id);
+    const hardDelete = body.hardDelete === true;
+    const archiveReason = typeof body.archiveReason === 'string' && body.archiveReason.trim()
+      ? body.archiveReason.trim()
+      : 'Admin archive request';
+    const result = hardDelete
+      ? await hardDeleteMemoryEvent(id)
+      : await archiveMemoryEvent(id, 'admin-token', archiveReason);
 
     if (!result.found || result.error) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
     return NextResponse.json({
-      deleted: true,
+      deleted: hardDelete,
+      archived: !hardDelete,
       event: result.event,
       pineconeDeleted: result.pineconeDeleted,
-      ...(result.pineconeError ? { warning: 'Supabase row deleted but Pinecone delete failed', pineconeError: result.pineconeError } : {}),
+      retentionDays: hardDelete ? undefined : 90,
+      ...(result.pineconeError ? { warning: hardDelete ? 'Supabase row deleted but Pinecone delete failed' : 'Memory archived but Pinecone delete failed', pineconeError: result.pineconeError } : {}),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

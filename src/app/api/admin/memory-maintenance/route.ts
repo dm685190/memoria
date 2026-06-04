@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseServiceClient } from '@/lib/memoryEvents';
 import { getEmbedding, getPineconeIndex, initPinecone } from '@/lib/pinecone';
 import { requireAdmin } from '@/lib/adminAuth';
 
@@ -27,23 +27,16 @@ export async function POST(request: Request) {
       return auth.response;
     }
 
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-      return NextResponse.json(
-        { error: 'Supabase credentials not configured on server' },
-        { status: 500 }
-      );
-    }
-
     const body = await request.json().catch(() => ({}));
     const maxEvents = Math.min(Number(body.maxEvents ?? 250), 1000);
     const batchSize = Math.min(Number(body.batchSize ?? 25), 100);
     const cleanupTests = body.cleanupTests !== false;
     const backfill = body.backfill !== false;
+    const purgeArchived = body.purgeArchived === true;
+    const retentionDays = Math.max(90, Number(body.retentionDays ?? 90) || 90);
+    const purgeBefore = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000).toISOString();
 
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+    const supabase = createSupabaseServiceClient();
     await initPinecone();
     const index = await getPineconeIndex();
 
@@ -60,6 +53,14 @@ export async function POST(request: Request) {
         upserted: 0,
         skipped: 0,
         errors: [] as Array<{ id?: string; error: string }>,
+      },
+      purgeArchived: {
+        enabled: purgeArchived,
+        retentionDays,
+        purgeBefore,
+        supabaseDeleted: 0,
+        pineconeDeleted: 0,
+        errors: [] as string[],
       },
     };
 
@@ -99,6 +100,44 @@ export async function POST(request: Request) {
       }
     }
 
+    if (purgeArchived) {
+      const { data: archivedRows, error: archivedSelectError } = await supabase
+        .from('memory_events')
+        .select('id')
+        .not('archived_at', 'is', null)
+        .lt('archived_at', purgeBefore)
+        .limit(maxEvents);
+
+      if (archivedSelectError) {
+        summary.purgeArchived.errors.push(archivedSelectError.message);
+      } else {
+        const ids = (archivedRows ?? []).map((row: { id: string }) => row.id);
+
+        if (ids.length > 0) {
+          for (const idChunk of chunk(ids, 100)) {
+            try {
+              await index.deleteMany({ ids: idChunk });
+              summary.purgeArchived.pineconeDeleted += idChunk.length;
+            } catch (error) {
+              summary.purgeArchived.errors.push(error instanceof Error ? error.message : String(error));
+            }
+          }
+
+          const { error: purgeError } = await supabase
+            .from('memory_events')
+            .delete()
+            .in('id', ids);
+
+          if (purgeError) {
+            summary.purgeArchived.errors.push(purgeError.message);
+          } else {
+            summary.purgeArchived.supabaseDeleted = ids.length;
+          }
+        }
+      }
+    }
+
+
     if (backfill) {
       const { data: events, error: eventsError } = await supabase
         .from('memory_events')
@@ -107,6 +146,7 @@ export async function POST(request: Request) {
         .neq('summary', '')
         .neq('source', 'test')
         .neq('kind', 'vector_search_test')
+        .is('archived_at', null)
         .order('created_at', { ascending: false })
         .limit(maxEvents);
 

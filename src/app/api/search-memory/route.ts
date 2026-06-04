@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { initPinecone, getPineconeIndex, getEmbedding } from '@/lib/pinecone';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseServiceClient } from '@/lib/memoryEvents';
 
 type MemoryEvent = {
   id: string;
@@ -13,17 +13,7 @@ type MemoryEvent = {
 
 export async function POST(request: Request) {
   try {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-      return NextResponse.json(
-        { error: 'Supabase credentials not configured on server' },
-        { status: 500 }
-      );
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+    const supabase = createSupabaseServiceClient();
 
     // Parse request body
     const body = await request.json();
@@ -74,7 +64,8 @@ export async function POST(request: Request) {
       const { data, error } = await supabase
         .from('memory_events')
         .select('*')
-        .in('id', ids);
+        .in('id', ids)
+        .is('archived_at', null);
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });

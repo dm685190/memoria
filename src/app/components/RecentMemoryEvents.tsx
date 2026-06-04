@@ -61,7 +61,7 @@ export default function RecentMemoryEvents({ initialEvents }: Props) {
   };
 
   const handleDelete = async (id: string) => {
-    const confirmed = window.confirm('Delete this memory from Supabase and Pinecone?');
+    const confirmed = window.confirm('Archive this memory? It will disappear from search now and hard-delete after 90 days.');
     if (!confirmed) return;
 
     setDeletingId(id);
@@ -123,7 +123,7 @@ export default function RecentMemoryEvents({ initialEvents }: Props) {
                   disabled={deletingId === event.id}
                   onClick={() => handleDelete(event.id)}
                 >
-                  {deletingId === event.id ? 'Deleting...' : 'Delete memory'}
+                  {deletingId === event.id ? 'Archiving...' : 'Archive memory'}
                 </button>
               </div>
             </li>

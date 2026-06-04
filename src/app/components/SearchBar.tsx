@@ -89,7 +89,7 @@ export default function SearchBar() {
   };
 
   const handleDelete = async (id: string) => {
-    const confirmed = window.confirm('Delete this memory from Supabase and Pinecone?');
+    const confirmed = window.confirm('Archive this memory? It will disappear from search now and hard-delete after 90 days.');
     if (!confirmed) return;
 
     setDeletingId(id);
@@ -262,7 +262,7 @@ export default function SearchBar() {
                     disabled={deletingId === result.id}
                     onClick={() => handleDelete(result.id)}
                   >
-                    {deletingId === result.id ? 'Deleting...' : 'Delete memory'}
+                    {deletingId === result.id ? 'Archiving...' : 'Archive memory'}
                   </button>
                   {result.metadata && Object.keys(result.metadata).length > 0 && (
                     <details className={styles.metadataDetails}>

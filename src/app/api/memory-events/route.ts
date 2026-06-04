@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseServiceClient } from '@/lib/memoryEvents';
 
 type MemoryEvent = {
   id: string;
@@ -12,20 +12,11 @@ type MemoryEvent = {
 
 export async function GET() {
   try {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-      return NextResponse.json(
-        { error: 'Supabase credentials not configured on server' },
-        { status: 500 }
-      );
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+    const supabase = createSupabaseServiceClient();
     const { data, error } = await supabase
       .from('memory_events')
       .select('*')
+      .is('archived_at', null)
       .order('created_at', { ascending: false })
       .limit(20);
 
@@ -35,7 +26,8 @@ export async function GET() {
 
     const { data: taxonomyData, error: taxonomyError } = await supabase
       .from('memory_events')
-      .select('source, kind');
+      .select('source, kind')
+      .is('archived_at', null);
 
     if (taxonomyError) {
       return NextResponse.json({ error: taxonomyError.message }, { status: 500 });
