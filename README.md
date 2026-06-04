@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Robin Cloud
 
-## Getting Started
+Private memory/search dashboard for Robin/OpenClaw.
 
-First, run the development server:
+Robin Cloud stores high-signal memory events, makes them searchable by meaning, keeps sensitive credentials server-side, and exposes a signed-in dashboard for inspection, capture, archive/restore, and recall workflows.
+
+## Production
+
+- Dashboard: <https://robin-cloud.vercel.app/>
+- Source: <https://github.com/dm685190/robin-cloud>
+- Deployment/observability: <https://vercel.com/>
+
+The dashboard uses Clerk sign-in. Admin/debug/maintenance/recall APIs require `ADMIN_TASK_TOKEN`; do not expose server secrets in browser code.
+
+## What you can do
+
+- Search active memories semantically.
+- Use Memory Lenses for one-click views: deployments, decisions, errors/fixes, milestones, handoffs.
+- Inspect full memory details and metadata.
+- Copy compact context for prompts or handoff notes.
+- Archive memories instead of deleting them immediately.
+- Restore archived memories.
+- Ingest new dashboard memories when signed in.
+- Use protected recall for assistant context retrieval.
+
+## Key docs
+
+- [Search guide](docs/search.md)
+- [Observability guide](docs/observability.md)
+- [Stack map](docs/stack.md)
+- [Memory capture](docs/memory-capture.md)
+- [Admin recall API](docs/recall-memory.md)
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Verification
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run lint
+```
 
-## Learn More
+Build may print local warnings if production-only environment variables are not present locally. That is expected as long as compilation/typecheck succeeds.
 
-To learn more about Next.js, take a look at the following resources:
+## Security model
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `memory_events` is read/written server-side with Supabase service-role credentials.
+- Public memory ingestion is disabled.
+- Dashboard writes require Clerk auth.
+- Admin maintenance/recall/debug routes require `ADMIN_TASK_TOKEN`.
+- Pinecone, Supabase, Resend, Upstash, and admin tokens remain server-only.
