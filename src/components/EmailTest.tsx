@@ -19,7 +19,7 @@ export default function EmailTest() {
         body: JSON.stringify({
           // Use the verified email from Resend sandbox error
           to: 'dylan@sprlrsrchlab.com',
-          subject: 'Test email from Robin Cloud',
+          subject: 'Test email from Memoria',
           text: 'This is a test email sent via Resend integration.',
         }),
       });

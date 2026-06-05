@@ -1,6 +1,6 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 
-const indexName = process.env.PINECONE_INDEX_NAME || 'robin-memory-events-2048';
+const indexName = process.env.PINECONE_INDEX_NAME || 'memoria-events-1024';
 const embeddingModel = process.env.PINECONE_EMBEDDING_MODEL || 'llama-text-embed-v2';
 
 let pinecone: Pinecone | null = null;

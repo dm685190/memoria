@@ -1,18 +1,18 @@
 # Stack Map
 
-Robin Cloud is a private memory and observability-adjacent dashboard for OpenClaw/Robin work.
+Memoria is a private memory and observability-adjacent dashboard for agentic workflows work.
 
 ## Sites and services
 
-### Robin Cloud
+### Memoria
 
-- Site: <https://robin-cloud.vercel.app/>
+- Site: <https://memoria.vercel.app/>
 - Role: signed-in dashboard for memory search, ingestion, inspection, archive/restore, and operational status.
 - Code: Next.js app-router project in this repository.
 
 ### GitHub
 
-- Site: <https://github.com/dm685190/robin-cloud>
+- Site: <https://github.com/dm685190/memoria>
 - Role: source control, change history, reviewable docs, deploy trigger for Vercel.
 - Watch for: commits, diffs, README/docs, CI/deploy hooks.
 
@@ -38,7 +38,7 @@ Vercel is the execution plane. The services below are attached to it through env
 - **Resend integration** — sends transactional/test email from `/api/send-email`; not part of memory storage or recall.
 - **Upstash Redis integration** — lightweight server-side runtime state/cache when routes need durable-but-small coordination.
 - **OpenAI integration** — optional LLM support for app features that need text generation/normalization; not the source of truth.
-- **Admin token integration** — protects machine-to-machine maintenance, capture, debug, and recall routes used by Hermes/OpenClaw wrappers.
+- **Admin token integration** — protects machine-to-machine maintenance, capture, debug, and recall routes used by agent/local wrappers wrappers.
 
 ### Clerk
 
@@ -59,7 +59,7 @@ Vercel is the execution plane. The services below are attached to it through env
 
 - Site: <https://app.pinecone.io/>
 - Role: hosted embeddings and vector search.
-- Index: `robin-memory-events-1024`.
+- Index: `memoria-events-1024`.
 - Model: `llama-text-embed-v2`.
 - Dimension: `1024`.
 - Stores: active memory vectors and compact metadata.
@@ -69,7 +69,7 @@ Vercel is the execution plane. The services below are attached to it through env
 
 - Site: <https://resend.com/emails>
 - Role: transactional email delivery.
-- Plain English: Resend is the service Robin Cloud calls when it needs to send an email. It is like Stripe for email delivery: the app sends Resend an API request, and Resend handles the actual outbound email, delivery status, and provider errors.
+- Plain English: Resend is the service Memoria calls when it needs to send an email. It is like Stripe for email delivery: the app sends Resend an API request, and Resend handles the actual outbound email, delivery status, and provider errors.
 - Used by: `/api/send-email` and the signed-in email test surface.
 - Current importance: useful for testing/notifications; not part of memory storage or semantic search.
 - Watch for: delivery failures, sandbox/verified-recipient limits, API key validity, sender/domain issues.
@@ -82,39 +82,39 @@ Vercel is the execution plane. The services below are attached to it through env
 
 ### 1Password
 
-- Role: local secret retrieval for OpenClaw/Hermes tooling.
-- Important item: `Robin Cloud Vercel App Admin Token` in vault `Robin Vault`.
+- Role: local secret retrieval for agent/local wrappers tooling.
+- Important item: `Memoria Vercel App Admin Token` in vault `your password manager vault`.
 - Used by: local recall/capture tooling to call protected admin routes without printing tokens.
 
 ### Hermes workspace
 
-- Path: `/home/caretaker/.hermes`
+- Path: `~/.memoria`
 - Role: current local operator environment, helper scripts, memory notes, recall/capture wrappers.
 - Useful scripts:
-  - `/home/caretaker/.hermes/scripts/robin-memory-recall`
-  - `/home/caretaker/.hermes/scripts/robin-memory-capture`
+  - `scripts/memoria-recall`
+  - `scripts/memoria-capture`
 - Default capture source: `hermes`.
 
 ### Obsidian
 
-- Path: `/home/caretaker/Obsidian/RobinVault`
+- Path: `~/Obsidian/YourVault`
 - Role: human-readable working library and long-form note vault.
-- Fits in flow: Obsidian is not a Vercel service and is not queried by Robin Cloud production APIs. It sits beside Robin Cloud as the durable Markdown layer for plans, research notes, runbooks, drafts, and narrative context that should remain browsable/editable by a human.
-- Relationship to Robin Cloud:
-  - Robin Cloud stores compact, high-signal memory events for semantic recall.
+- Fits in flow: Obsidian is not a Vercel service and is not queried by Memoria production APIs. It sits beside Memoria as the durable Markdown layer for plans, research notes, runbooks, drafts, and narrative context that should remain browsable/editable by a human.
+- Relationship to Memoria:
+  - Memoria stores compact, high-signal memory events for semantic recall.
   - Obsidian stores richer notes and documents when the context is too long, too structured, or too human-authored for a single memory event.
-  - A finished Obsidian note can be summarized into Robin Cloud when it becomes a durable decision, handoff, error/fix, milestone, or system fact.
-  - A Robin Cloud recall can point an agent back toward what matters; Obsidian holds the longer source material when the agent/human needs the full ruin, not just the inscription.
+  - A finished Obsidian note can be summarized into Memoria when it becomes a durable decision, handoff, error/fix, milestone, or system fact.
+  - A Memoria recall can point an agent back toward what matters; Obsidian holds the longer source material when the agent/human needs the full ruin, not just the inscription.
 - Watch for: vault path drift, accidental duplication between notes and memory events, and large-note bloat being copied into memory capture.
 
-### OpenClaw workspace
+### agent workspace
 
-- Path: `/home/caretaker/.openclaw/workspace`
+- Path: `~/agent-workspace`
 - Role: legacy/cutover operator environment, original helper scripts, memory notes, recall/capture wrappers.
 - Useful legacy scripts:
-  - `/home/caretaker/.openclaw/workspace/scripts/robin-memory-recall`
-  - `/home/caretaker/.openclaw/workspace/scripts/robin-memory-capture`
-- Default legacy capture source: `openclaw`.
+  - `~/agent-workspace/scripts/memoria-recall`
+  - `~/agent-workspace/scripts/memoria-capture`
+- Default legacy capture source: `agent`.
 
 ## Route map
 

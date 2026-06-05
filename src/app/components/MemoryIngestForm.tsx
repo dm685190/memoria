@@ -8,11 +8,11 @@ type SubmitState = 'idle' | 'loading' | 'success' | 'error';
 
 export default function MemoryIngestForm() {
   const router = useRouter();
-  const [source, setSource] = useState('openclaw');
+  const [source, setSource] = useState('agent');
   const [kind, setKind] = useState('note');
   const [summary, setSummary] = useState('');
   const [metadataText, setMetadataText] = useState(`{
-  "project": "robin-cloud"
+  "project": "memoria"
 }`);
   const [submitState, setSubmitState] = useState<SubmitState>('idle');
   const [message, setMessage] = useState('');

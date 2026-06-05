@@ -1,13 +1,13 @@
-# Robin Cloud
+# Memoria
 
-Private memory/search dashboard for Robin/OpenClaw.
+Private memory/search dashboard for agentic workflows.
 
-Robin Cloud stores high-signal memory events, makes them searchable by meaning, keeps sensitive credentials server-side, and exposes a signed-in dashboard for inspection, capture, archive/restore, and recall workflows.
+Memoria stores high-signal memory events, makes them searchable by meaning, keeps sensitive credentials server-side, and exposes a signed-in dashboard for inspection, capture, archive/restore, and recall workflows.
 
 ## Production
 
-- Dashboard: <https://robin-cloud.vercel.app/>
-- Source: <https://github.com/dm685190/robin-cloud>
+- Dashboard: <https://memoria.vercel.app/>
+- Source: <https://github.com/dm685190/memoria>
 - Deployment/observability: <https://vercel.com/>
 
 The dashboard uses Clerk sign-in. Admin/debug/maintenance/recall APIs require `ADMIN_TASK_TOKEN`; do not expose server secrets in browser code.

@@ -26,7 +26,7 @@ type Taxonomy = {
 };
 
 const FALLBACK_TAXONOMY: Taxonomy = {
-  sources: ['openclaw', 'supabase'],
+  sources: ['agent', 'supabase'],
   kinds: ['decision', 'deployment', 'milestone', 'system'],
 };
 
@@ -232,10 +232,10 @@ export default function SearchBar() {
 
   const handleLens = async (lens: typeof MEMORY_LENSES[number]) => {
     setSearchQuery(lens.query);
-    setSourceFilter('openclaw');
+    setSourceFilter('agent');
     setKindFilter(lens.kind);
     setMinScore('0');
-    await runSearch(lens.query, { source: 'openclaw', kind: lens.kind, minScore: '0' });
+    await runSearch(lens.query, { source: 'agent', kind: lens.kind, minScore: '0' });
   };
 
   return (

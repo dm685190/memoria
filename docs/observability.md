@@ -13,12 +13,12 @@ Use Vercel for:
 - domain/routing status
 - failed requests and serverless errors
 
-Look for the `robin-cloud` project under the GitHub-connected Vercel account/team.
+Look for the `memoria` project under the GitHub-connected Vercel account/team.
 
 ## Service dashboards
 
-- Robin Cloud dashboard: <https://robin-cloud.vercel.app/>
-- GitHub repository: <https://github.com/dm685190/robin-cloud>
+- Memoria dashboard: <https://memoria.vercel.app/>
+- GitHub repository: <https://github.com/dm685190/memoria>
 - Supabase: <https://supabase.com/dashboard>
 - Pinecone: <https://app.pinecone.io/>
 - Clerk: <https://dashboard.clerk.com/>
@@ -49,11 +49,11 @@ Look for the `robin-cloud` project under the GitHub-connected Vercel account/tea
 
 1. Production `/api/admin/recall-memory` logs in Vercel.
 2. Confirm `ADMIN_TASK_TOKEN` exists in Vercel.
-3. Confirm 1Password item `Robin Cloud Vercel App Admin Token` in vault `Robin Vault` is readable locally.
+3. Confirm 1Password item `Memoria Vercel App Admin Token` in vault `your password manager vault` is readable locally.
 4. Confirm current Hermes wrapper works:
-   - `/home/caretaker/.hermes/scripts/robin-memory-recall "query" --source hermes --limit 3`
-5. Confirm legacy OpenClaw wrapper only if investigating pre-cutover records:
-   - `/home/caretaker/.openclaw/workspace/scripts/robin-memory-recall "query" --source openclaw --limit 3`
+   - `scripts/memoria-recall "query" --source hermes --limit 3`
+5. Confirm legacy agent wrapper only if investigating pre-cutover records:
+   - `~/agent-workspace/scripts/memoria-recall "query" --source agent --limit 3`
 6. Confirm Pinecone and Supabase credentials are still valid.
 
 ### Dashboard ingestion/archive/restore broken
@@ -83,17 +83,17 @@ Production smoke tests:
 
 ```bash
 # Unauthenticated memory listing must stay sealed.
-curl -sS -o /tmp/robin-memory-events-body -w '%{http_code}\n' \
-  https://robin-cloud.vercel.app/api/memory-events
+curl -sS -o /tmp/memoria-events-body -w '%{http_code}\n' \
+  https://memoria.vercel.app/api/memory-events
 
 # Unauthenticated memory search must stay sealed.
-curl -sS -o /tmp/robin-search-memory-body -w '%{http_code}\n' -X POST \
+curl -sS -o /tmp/memoria-search-body -w '%{http_code}\n' -X POST \
   -H 'Content-Type: application/json' \
   --data '{"query":"deployment verification","limit":3,"minScore":0}' \
-  https://robin-cloud.vercel.app/api/search-memory
+  https://memoria.vercel.app/api/search-memory
 
 # Admin-token recall should still work via the local wrapper.
-/home/caretaker/.hermes/scripts/robin-memory-recall \
+scripts/memoria-recall \
   "deployment verification" --source hermes --limit 3
 ```
 

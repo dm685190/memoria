@@ -8,7 +8,7 @@ Usage:
 
 Examples:
   npm run memory:capture -- --kind deployment --summary "Search UI deployed and verified" --metadata-file metadata.json
-  npm run memory:capture -- --kind handoff --summary "Robin Cloud search/capture workflow ready for next phase"
+  npm run memory:capture -- --kind handoff --summary "Memoria search/capture workflow ready for next phase"
 USAGE
 }
 
@@ -66,14 +66,24 @@ except json.JSONDecodeError as exc:
     raise SystemExit(f"metadata must be valid JSON: {exc}")
 if not isinstance(metadata, dict):
     raise SystemExit('metadata must be a JSON object')
-metadata.setdefault('project', 'robin-cloud')
+metadata.setdefault('project', 'memoria')
 if commit:
     metadata.setdefault('commit', commit)
 if branch:
     metadata.setdefault('branch', branch)
 
+import os
+import shutil
+
+capture_bin = os.environ.get('MEMORIA_CAPTURE_BIN') or shutil.which('memoria-capture')
+if not capture_bin:
+    raise SystemExit(
+        'memoria-capture command not found. Set MEMORIA_CAPTURE_BIN=/path/to/memoria-capture '
+        'or install a compatible capture wrapper.'
+    )
+
 cmd = [
-    '/home/caretaker/.openclaw/workspace/scripts/robin-memory-capture',
+    capture_bin,
     '--kind', kind,
     '--summary', summary,
     '--metadata', json.dumps(metadata, separators=(',', ':')),

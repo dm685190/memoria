@@ -1,6 +1,6 @@
 # Admin Memory Recall API
 
-Protected endpoint for agent-facing Robin Cloud recall.
+Protected endpoint for agent-facing Memoria recall.
 
 ## Route
 
@@ -15,7 +15,7 @@ Requires `ADMIN_TASK_TOKEN` via either:
 
 ```json
 {
-  "query": "Robin Cloud archive retention",
+  "query": "Memoria archive retention",
   "limit": 5,
   "filters": { "source": "hermes", "kind": "deployment" },
   "minScore": 0,
@@ -30,7 +30,7 @@ Returns both structured memories and a compact prompt-ready `context` string.
 
 ```json
 {
-  "query": "Robin Cloud archive retention",
+  "query": "Memoria archive retention",
   "count": 2,
   "memories": [
     {
@@ -43,7 +43,7 @@ Returns both structured memories and a compact prompt-ready `context` string.
       "summary": "..."
     }
   ],
-  "context": "[1] (openclaw/deployment score=0.420 created=...) ..."
+  "context": "[1] (agent/deployment score=0.420 created=...) ..."
 }
 ```
 

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Robin - Memory Search",
-  description: "A portable memory and orchestration layer for Dylan.",
+  title: "Memoria - Memory Search",
+  description: "A portable memory and recall layer for agents and humans.",
 };
 
 export default function RootLayout({

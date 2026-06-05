@@ -128,21 +128,21 @@ export default async function Home() {
 
         <h1>Memory Search</h1>
         <p className={styles.lede}>
-          A portable memory and orchestration layer for Dylan, designed to keep
-          Robin intact across OpenClaw, Hermes, and whatever vessel comes next.
+          A portable memory and recall layer designed to keep
+          your memory substrate searchable across agents, dashboards, and whatever vessel comes next.
         </p>
         <div className={styles.operatorLinks}>
-          <a href="https://github.com/dm685190/robin-cloud" target="_blank" rel="noreferrer">
+          <a href="https://github.com/dm685190/memoria" target="_blank" rel="noreferrer">
             <span>Operator docs</span>
             <strong>GitHub README</strong>
             <small>Search guide, stack map, and observability notes.</small>
           </a>
-          <a href="https://github.com/dm685190/robin-cloud/blob/main/docs/stack.md" target="_blank" rel="noreferrer">
+          <a href="https://github.com/dm685190/memoria/blob/main/docs/stack.md" target="_blank" rel="noreferrer">
             <span>Stack map</span>
             <strong>What each service does</strong>
             <small>Vercel, Clerk, Supabase, Pinecone, Resend, Upstash.</small>
           </a>
-          <a href="https://github.com/dm685190/robin-cloud/blob/main/docs/observability.md" target="_blank" rel="noreferrer">
+          <a href="https://github.com/dm685190/memoria/blob/main/docs/observability.md" target="_blank" rel="noreferrer">
             <span>Observability</span>
             <strong>Where to look when it breaks</strong>
             <small>Deployment logs, API errors, email delivery, and data health.</small>
@@ -194,7 +194,7 @@ export default async function Home() {
         </Show>
         <Show when="signed-out">
           <p className={styles.signedInNote}>
-            Sign in to search, ingest, and inspect Robin Cloud memories.
+            Sign in to search, ingest, and inspect Memoria memories.
           </p>
         </Show>
 

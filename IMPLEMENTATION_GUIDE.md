@@ -1,10 +1,10 @@
-# Implementation Guide: Deploying Your Own Robin Cloud Stack
+# Implementation Guide: Deploying Your Own Memoria Stack
 
-This guide walks you through provisioning and deploying a personal instance of the Robin Cloud memory/dashboard stack, assuming you already have accounts with the required services.
+This guide walks you through provisioning and deploying a personal instance of the Memoria memory/dashboard stack, assuming you already have accounts with the required services.
 
 ## Overview
 
-Robin Cloud consists of:
+Memoria consists of:
 - **Next.js 13 (App Router)** – UI and API routes
 - **Clerk** – Authentication
 - **Supabase** – Postgres database (`memory_events` table) + Auth (anon key for public reads, service role for server)
@@ -13,7 +13,7 @@ Robin Cloud consists of:
 - **Upstash Redis** – Lightweight server‑side cache
 - **OpenAI** – Optional LLM helpers
 - **Vercel** – Hosting, serverless functions, CI/CD
-- **1Password** – Secure storage for the admin token used by Hermes/OpenClaw wrappers
+- **1Password** – Secure storage for the admin token used by agent/local wrappers wrappers
 
 All secrets must remain **server‑only**. Never expose them to the browser.
 
@@ -37,8 +37,8 @@ You also need:
 ## Step 1: Fork / Clone the Repository
 
 ```bash
-git clone git@github.com:YOUR_USERNAME/robin-cloud.git
-cd robin-cloud
+git clone git@github.com:YOUR_USERNAME/memoria.git
+cd memoria
 ```
 
 If you don’t have a fork, create one on GitHub first, then clone your fork.
@@ -53,7 +53,7 @@ If you don’t have a fork, create one on GitHub first, then clone your fork.
    The table schema is supplied in `supabase/schema.sql` (if present) or you can run the migration later.
 
 ### 2.2 Pinecone
-1. Create an index named `robin-memory-events-1024` (or another name; you’ll set `PINECONE_INDEX_NAME` accordingly).
+1. Create an index named `memoria-events-1024` (or another name; you’ll set `PINECONE_INDEX_NAME` accordingly).
    - Dimension: `1024`
    - Metric: Cosine
    - Model: `llama-text-embed-v2` (you’ll set `PINECONE_EMBEDDING_MODEL`)
@@ -64,7 +64,7 @@ If you don’t have a fork, create one on GitHub first, then clone your fork.
 2. From the Clerk dashboard, copy:
    - **Publishable Key** → `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` (if you want to use Clerk’s Next.js helpers; the dashboard currently relies on session via cookies, but you may need it for custom auth).
    - **Secret Key** → `CLERK_SECRET_KEY` (if you need backend calls; the current app uses session cookies from the browser, so you may not need this unless you extend the API).
-   However the current Robin Cloud code does **not** directly call Clerk’s backend; it relies on the browser sending the session cookie. So you may not need to expose Clerk secrets to the Node backend unless you add custom endpoints that verify the session server‑side. For now you can leave Clerk keys out of `.env` and rely on the cookie flow.
+   However the current Memoria code does **not** directly call Clerk’s backend; it relies on the browser sending the session cookie. So you may not need to expose Clerk secrets to the Node backend unless you add custom endpoints that verify the session server‑side. For now you can leave Clerk keys out of `.env` and rely on the cookie flow.
    - For safety, you can still add:
      ```
      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
@@ -86,13 +86,13 @@ If you don’t have a fork, create one on GitHub first, then clone your fork.
 1. Create an API key.
 2. Set `OPENAI_API_KEY`.
 
-### 2.7 Admin Token for Hermes/OpenClaw
+### 2.7 Admin Token for agent/local wrappers
 You need a long‑lived random string that will be used as a bearer token for protected routes (`/api/admin/*`).
 - Generate a secure token, e.g.:
   ```bash
   openssl rand -base64 32
   ```
-- Store this token in your password manager (we put it in 1Password under **Robin Vault → Robin Cloud Vercel App Admin Token**).
+- Store this token in your password manager (we put it in 1Password under **your password manager vault → Memoria Vercel App Admin Token**).
 - You will set `ADMIN_TASK_TOKEN` to this value.
 
 ## Step 3: Create the Environment File
@@ -116,7 +116,7 @@ SUPABASE_SERVICE_ROLE_KEY=service-role-key
 
 # Pinecone (server‑only)
 PINECONE_API_KEY=...
-PINECONE_INDEX_NAME=robin-memory-events-1024
+PINECONE_INDEX_NAME=memoria-events-1024
 PINECONE_EMBEDDING_MODEL=llama-text-embed-v2
 
 # Resend (server‑only, optional)
@@ -149,7 +149,7 @@ Start the development server:
 npm run dev
 ```
 
-Open <http://localhost:3000>. You should see the Robin Cloud dashboard sign‑in page (via Clerk). Sign in with a Clerk‑created email/password or social provider.
+Open <http://localhost:3000>. You should see the Memoria dashboard sign‑in page (via Clerk). Sign in with a Clerk‑created email/password or social provider.
 
 Once signed in:
 - Try creating a memory via the “New Memory” button (if available) – it should call `/api/dashboard/memory-events` (protected by Clerk session).
@@ -160,7 +160,7 @@ Once signed in:
 You can test the protected admin routes with `curl` using the admin token:
 
 ```bash
-ADMIN_TOKEN=$(op read "op://Robin Vault/Robin Cloud Vercel App Admin Token/credential")
+ADMIN_TOKEN=$(op read "op://your password manager vault/Memoria Vercel App Admin Token/credential")
 curl -s -X POST http://localhost:3000/api/admin/memory-events \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
@@ -228,9 +228,9 @@ After a successful deploy:
 
 ## Where Obsidian Fits
 
-Robin Cloud is for compact, high‑signal memory events (decisions, deployments, errors/fixes, milestones, handoffs, system facts).  
-For long‑form notes, plans, research, runbooks, and narrative context, use your Obsidian vault at `/home/caretaker/Obsidian/RobinVault` (or any path you prefer).  
-When an Obsidian note becomes a durable decision, etc., summarize it into Robin Cloud via the memory‑capture wrapper (`npm run memory:capture`).
+Memoria is for compact, high‑signal memory events (decisions, deployments, errors/fixes, milestones, handoffs, system facts).  
+For long‑form notes, plans, research, runbooks, and narrative context, use your Obsidian vault at `~/Obsidian/YourVault` (or any path you prefer).  
+When an Obsidian note becomes a durable decision, etc., summarize it into Memoria via the memory‑capture wrapper (`npm run memory:capture`).
 
 --- 
 

@@ -1,6 +1,6 @@
 # Search Guide
 
-Use the production dashboard at <https://robin-cloud.vercel.app/>.
+Use the production dashboard at <https://memoria.vercel.app/>.
 
 ## Dashboard search
 
@@ -11,7 +11,7 @@ Use the production dashboard at <https://robin-cloud.vercel.app/>.
    - `Pinecone hosted embeddings decision`
    - `dashboard deletion verification`
 4. Optional filters:
-   - **Source** — where the memory came from, usually `openclaw`.
+   - **Source** — where the memory came from, usually `agent`.
    - **Kind** — normalized event type, such as `deployment` or `decision`.
    - **Min score** — semantic relevance threshold. Use `0` when exploring broadly; use `0.25+` when you want tighter matches.
    - **Include archived** — includes archived memories. Archived memories no longer have Pinecone vectors, so archived matches use keyword fallback.
@@ -32,15 +32,15 @@ Lenses reuse `/api/search-memory`; they do not introduce new credentials or rout
 
 ## Agent recall CLI
 
-OpenClaw can pull compact context without opening the dashboard:
+agent can pull compact context without opening the dashboard:
 
 ```bash
-/home/caretaker/.openclaw/workspace/scripts/robin-memory-recall "Robin Cloud archive restore" --limit 5
-/home/caretaker/.openclaw/workspace/scripts/robin-memory-recall "memory capture policy" --source openclaw --kind decision --limit 3
-/home/caretaker/.openclaw/workspace/scripts/robin-memory-recall "Robin Cloud recall API" --json --limit 2
+~/agent-workspace/scripts/memoria-recall "Memoria archive restore" --limit 5
+~/agent-workspace/scripts/memoria-recall "memory capture policy" --source agent --kind decision --limit 3
+~/agent-workspace/scripts/memoria-recall "Memoria recall API" --json --limit 2
 ```
 
-The CLI reads the admin token from 1Password item `Robin Cloud Vercel App Admin Token` in vault `Robin Vault` and does not print it.
+The CLI reads the admin token from 1Password item `Memoria Vercel App Admin Token` in vault `your password manager vault` and does not print it.
 
 ## API search
 
@@ -53,7 +53,7 @@ Content-Type: application/json
 {
   "query": "archive retention restore workflow",
   "limit": 5,
-  "filters": { "source": "openclaw", "kind": "deployment" },
+  "filters": { "source": "agent", "kind": "deployment" },
   "minScore": 0.25,
   "includeArchived": false
 }

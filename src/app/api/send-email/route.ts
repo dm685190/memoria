@@ -34,10 +34,10 @@ export async function POST(request: Request) {
     }
 
     const data = await resend.emails.send({
-      from: 'Robin Cloud <onboarding@resend.dev>', // You can change this to your domain
+      from: 'Memoria <onboarding@resend.dev>', // You can change this to your domain
       to: recipient,
-      subject: subject || 'Robin Cloud Alert',
-      text: text || 'This is a test email from Robin Cloud.',
+      subject: subject || 'Memoria Alert',
+      text: text || 'This is a test email from Memoria.',
     });
 
     // Log the data for debugging (visible in Vercel logs)

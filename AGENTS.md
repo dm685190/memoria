@@ -1,10 +1,10 @@
-# AGENTS.md - Robin Cloud AI Agent Guide
+# AGENTS.md - Memoria AI Agent Guide
 
-This file instructs AI agents (including yourself) on how to work with the Robin Cloud stack safely and effectively.
+This file instructs AI agents (including yourself) on how to work with the Memoria stack safely and effectively.
 
 ## 1. Stack Overview
 
-Robin Cloud is a private memory/dashboard built with:
+Memoria is a private memory/dashboard built with:
 
 - **Next.js 13 (App Router)** – React framework for UI and API routes.
 - **Clerk** – Authentication for dashboard users.
@@ -14,7 +14,7 @@ Robin Cloud is a private memory/dashboard built with:
 - **Upstash Redis** – Lightweight server-side cache/state.
 - **OpenAI** – Optional LLM helpers (not source of truth).
 - **Vercel** – Hosting, serverless API runtime, CI/CD.
-- **1Password** – Stores admin token locally for Hermes/OpenClaw wrappers.
+- **1Password** – Stores admin token locally for agent/local wrappers wrappers.
 
 All secrets (Supabase service role, Pinecone key, Resend key, Upstash token, OpenAI key, admin token) **must remain server‑only**. Never expose them to the browser.
 
@@ -24,7 +24,7 @@ All secrets (Supabase service role, Pinecone key, Resend key, Upstash token, Ope
 
 - Node.js (≥18) and npm.
 - A `.env.local` file (not committed) with the required variables.
-  - You can copy the example from `/.env.example` if present, or retrieve secrets from 1Password (`Robin Vault`).
+  - You can copy the example from `/.env.example` if present, or retrieve secrets from 1Password (`your password manager vault`).
 
 ### Setup
 
@@ -47,7 +47,7 @@ SUPABASE_SERVICE_ROLE_KEY=
 
 # Pinecone (server‑only)
 PINECONE_API_KEY=
-PINECONE_INDEX_NAME=robin-memory-events-1024
+PINECONE_INDEX_NAME=memoria-events-1024
 PINECONE_EMBEDDING_MODEL=llama-text-embed-v2
 
 # Resend (server‑only)
@@ -97,7 +97,7 @@ All API routes live under `/src/app/api/`.
 
 ### Admin / Protected (require `ADMIN_TASK_TOKEN`)
 
-These are used by Hermes/OpenClaw wrappers:
+These are used by agent/local wrappers wrappers:
 
 - `POST /api/admin/memory-events` – ingest a memory event.
 - `DELETE /api/admin/memory-events` – archive or hard‑delete.
@@ -118,14 +118,14 @@ Use the provided wrapper to record durable events:
 
 ```bash
 # Example from memory-capture.md
-cat > /tmp/robin-memory-metadata.json <<'JSON'
+cat > /tmp/memoria-metadata.json <<'JSON'
 {"verified":"npm run build"}
 JSON
-npm run memory:capture -- --kind deployment --summary "Search UI deployed and verified" --metadata-file /tmp/robin-memory-metadata.json
+npm run memory:capture -- --kind deployment --summary "Search UI deployed and verified" --metadata-file /tmp/memoria-metadata.json
 ```
 
 The wrapper automatically adds:
-- `project=robin-cloud`
+- `project=memoria`
 - current git `commit`
 - current git `branch`
 
@@ -143,7 +143,7 @@ Call it only for high‑signal events: deployments, decisions, errors/fixes, mil
 You can test admin routes with `curl`:
 
 ```bash
-ADMIN_TOKEN=$(op item get "Robin Cloud Vercel App Admin Token" --fields credential --vault="Robin Vault")
+ADMIN_TOKEN=$(op item get "Memoria Vercel App Admin Token" --fields credential --vault="your password manager vault")
 curl -s -X POST http://localhost:3000/api/admin/memory-events \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
@@ -165,16 +165,16 @@ curl -s -X POST http://localhost:3000/api/admin/memory-events \
 - **Do not** commit `.env*` files.
 - **Do not** push changes that break the lint or build.
 - **Do not** create a new memory kind without updating the docs and UI filters.
-- **Do not** store long‑form notes in Robin Cloud; use Obsidian for that.
+- **Do not** store long‑form notes in Memoria; use Obsidian for that.
 
 ## 11. Where Obsidian Fits
 
-Obsidian (`/home/caretaker/Obsidian/RobinVault`) is the human‑readable vault for long‑form notes, plans, runbooks, and research. It is **not** queried by Robin Cloud APIs. Use it to store context that is too large, too structured, or too narrative for a single memory event. When an Obsidian note becomes a durable decision, handoff, etc., summarize it into Robin Cloud via the memory‑capture wrapper.
+Obsidian (`~/Obsidian/YourVault`) is the human‑readable vault for long‑form notes, plans, runbooks, and research. It is **not** queried by Memoria APIs. Use it to store context that is too large, too structured, or too narrative for a single memory event. When an Obsidian note becomes a durable decision, handoff, etc., summarize it into Memoria via the memory‑capture wrapper.
 
 ## 12. Getting Help
 
-- Check the Vercel deployment logs: <https://vercel.com/dm685190/robin-cloud/deploys>
-- Look at the admin token in 1Password (`Robin Vault → Robin Cloud Vercel App Admin Token`).
+- Check the Vercel deployment logs: <https://vercel.com/dm685190/memoria/deploys>
+- Look at the admin token in 1Password (`your password manager vault → Memoria Vercel App Admin Token`).
 - For Supabase/Pinecone/Resend/Upstash, consult their respective dashboards (access via 1Password or shared vault).
 
 Remember: the stack is designed so that the agent can interact with it **without ever seeing a secret**. Use the provided wrappers and admin token for machine‑to‑machine calls.

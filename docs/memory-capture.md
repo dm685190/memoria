@@ -1,12 +1,12 @@
 # Memory Capture
 
-Use this repo-local wrapper after meaningful Robin Cloud work:
+Use this repo-local wrapper after meaningful Memoria work:
 
 ```bash
-cat > /tmp/robin-memory-metadata.json <<'JSON'
+cat > /tmp/memoria-metadata.json <<'JSON'
 {"verified":"npm run build"}
 JSON
-npm run memory:capture -- --kind deployment --summary "Search UI deployed and verified" --metadata-file /tmp/robin-memory-metadata.json
+npm run memory:capture -- --kind deployment --summary "Search UI deployed and verified" --metadata-file /tmp/memoria-metadata.json
 ```
 
 Capture only durable events:
@@ -33,4 +33,4 @@ Use these `--kind` values so dashboard filters and Memory Lenses stay useful:
 
 Prefer one of these before inventing a new kind. The archive is patient, but taxonomy rot is forever. Fufufu.
 
-The wrapper adds `project=robin-cloud`, current git `commit`, and current `branch` automatically. Use `--metadata-file` for anything beyond very simple metadata; npm/shell quoting is a hungry little monster, then calls the workspace-level protected Robin Cloud ingestion helper.
+The wrapper adds `project=memoria`, current git `commit`, and current `branch` automatically. Use `--metadata-file` for anything beyond very simple metadata; npm/shell quoting is a hungry little monster, then calls the workspace-level protected Memoria ingestion helper.
