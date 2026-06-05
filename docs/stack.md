@@ -22,6 +22,24 @@ Robin Cloud is a private memory and observability-adjacent dashboard for OpenCla
 - Role: hosting, deployments, serverless API runtime, environment variables, build/runtime logs.
 - Watch for: deployment failures, runtime exceptions, missing env vars, domain issues.
 
+#### Vercel stack service responsibilities
+
+Vercel is the execution plane. The services below are attached to it through environment variables and server-side API routes.
+
+- **Vercel Project / Hosting** — builds the Next.js app, serves the signed-in dashboard, runs App Router server components, and hosts the `/api/*` serverless routes.
+- **Vercel Deployments** — immutable build artifacts for every GitHub-triggered change; use them to compare production against a known commit when behavior changes.
+- **Vercel Environment Variables** — the boundary between browser-safe settings and server-only credentials. `NEXT_PUBLIC_*` values may reach the client; Supabase service-role, Pinecone, Resend, Upstash, OpenAI, and admin tokens must stay server-only.
+- **Vercel Runtime Logs** — first stop for API-route failures, auth errors, missing env vars, and provider exceptions. They explain how the system died. Fufufu.
+- **Next.js Dashboard Runtime** — renders the authenticated memory UI, health/status panels, Memory Lenses, capture form, archive/restore controls, and recall/search surfaces.
+- **Next.js API Routes** — trusted server layer that checks Clerk/admin auth, talks to Supabase/Pinecone/Resend/Upstash/OpenAI, and prevents secrets from crossing into browser code.
+- **Clerk integration** — handles dashboard sign-in/session state and protects dashboard-only writes.
+- **Supabase integration** — stores canonical `memory_events` rows using server-side credentials. RLS remains enabled; anonymous/public reads are intentionally sealed.
+- **Pinecone integration** — embeds and searches active memory summaries. Supabase remains the record of truth; Pinecone is the semantic index.
+- **Resend integration** — sends transactional/test email from `/api/send-email`; not part of memory storage or recall.
+- **Upstash Redis integration** — lightweight server-side runtime state/cache when routes need durable-but-small coordination.
+- **OpenAI integration** — optional LLM support for app features that need text generation/normalization; not the source of truth.
+- **Admin token integration** — protects machine-to-machine maintenance, capture, debug, and recall routes used by Hermes/OpenClaw wrappers.
+
 ### Clerk
 
 - Site: <https://dashboard.clerk.com/>
@@ -76,6 +94,18 @@ Robin Cloud is a private memory and observability-adjacent dashboard for OpenCla
   - `/home/caretaker/.hermes/scripts/robin-memory-recall`
   - `/home/caretaker/.hermes/scripts/robin-memory-capture`
 - Default capture source: `hermes`.
+
+### Obsidian
+
+- Path: `/home/caretaker/Obsidian/RobinVault`
+- Role: human-readable working library and long-form note vault.
+- Fits in flow: Obsidian is not a Vercel service and is not queried by Robin Cloud production APIs. It sits beside Robin Cloud as the durable Markdown layer for plans, research notes, runbooks, drafts, and narrative context that should remain browsable/editable by a human.
+- Relationship to Robin Cloud:
+  - Robin Cloud stores compact, high-signal memory events for semantic recall.
+  - Obsidian stores richer notes and documents when the context is too long, too structured, or too human-authored for a single memory event.
+  - A finished Obsidian note can be summarized into Robin Cloud when it becomes a durable decision, handoff, error/fix, milestone, or system fact.
+  - A Robin Cloud recall can point an agent back toward what matters; Obsidian holds the longer source material when the agent/human needs the full ruin, not just the inscription.
+- Watch for: vault path drift, accidental duplication between notes and memory events, and large-note bloat being copied into memory capture.
 
 ### OpenClaw workspace
 
