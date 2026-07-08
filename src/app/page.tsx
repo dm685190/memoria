@@ -6,10 +6,10 @@ import {
 } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
-import EmailTest from "@/components/EmailTest";
-import SearchBar from "@/app/components/SearchBar";
-import MemoryIngestForm from "@/app/components/MemoryIngestForm";
-import RecentMemoryEvents from "@/app/components/RecentMemoryEvents";
+import EmailTest from "../components/EmailTest";
+import SearchBar from "./components/SearchBar";
+import MemoryIngestForm from "./components/MemoryIngestForm";
+import RecentMemoryEvents from "./components/RecentMemoryEvents";
 import { checkRedisHealth } from "@/lib/upstash";
 import styles from "./page.module.css";
 
