@@ -1,45 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const WWW_HOST = "www.sprlrsrchlab.com";
+// www.sprlrsrchlab.com and sprlrsrchlab.com both serve the same content:
+//   /            → landing page
+//   /search/     → Memory Search (was ms.sprlrsrchlab.com)
+//   /lab.html, /graphify-map.html, /knowledge-graph-viewer.html → static site pages
 
 export function middleware(request: NextRequest) {
-  const host = request.headers.get("host") || "";
   const url = request.nextUrl.clone();
+  const path = url.pathname;
 
-  // www.sprlrsrchlab.com → serve static site files
-  if (host === WWW_HOST) {
-    const path = url.pathname;
-
-    // Root → landing page
-    if (path === "/") {
-      url.pathname = "/site/index.html";
-      return NextResponse.rewrite(url);
-    }
-
-    // Known static site pages
-    if (/^\/(lab|graphify-map|knowledge-graph-viewer)\.html$/.test(path)) {
-      url.pathname = "/site" + path;
-      return NextResponse.rewrite(url);
-    }
-
-    // Graph data files
-    if (path.startsWith("/graph-data/")) {
-      url.pathname = "/site" + path;
-      return NextResponse.rewrite(url);
-    }
-
-    // Everything else → landing page (catch-all)
+  // Root → landing page
+  if (path === "/") {
     url.pathname = "/site/index.html";
     return NextResponse.rewrite(url);
   }
 
-  // ms.sprlrsrchlab.com or any other host → normal Next.js behavior
+  // Known static site pages
+  if (/^\/(lab|graphify-map|knowledge-graph-viewer)\.html$/.test(path)) {
+    url.pathname = "/site" + path;
+    return NextResponse.rewrite(url);
+  }
+
+  // Graph data files
+  if (path.startsWith("/graph-data/")) {
+    url.pathname = "/site" + path;
+    return NextResponse.rewrite(url);
+  }
+
+  // Everything else → normal Next.js behavior (includes /search, API routes, etc.)
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    // Match all paths for www
+    // Exclude Next.js internals and the site files themselves
     "/((?!_next/static|_next/image|favicon.ico|site/).*)",
   ],
 };
