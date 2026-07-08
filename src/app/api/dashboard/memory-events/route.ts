@@ -1,5 +1,5 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { isAdminAuthorized } from '@/lib/adminAuth';
 import { getEmbedding, getPineconeIndex, initPinecone } from '@/lib/pinecone';
 import { archiveMemoryEvent, createSupabaseServiceClient, restoreMemoryEvent } from '@/lib/memoryEvents';
 
@@ -40,8 +40,7 @@ function cleanMetadata(value: unknown) {
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    if (!isAdminAuthorized(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -52,7 +51,6 @@ export async function POST(request: Request) {
     const metadata = {
       ...cleanMetadata(body.metadata),
       captured_by: 'dashboard',
-      clerk_user_id: userId,
     };
 
     const supabase = createSupabaseServiceClient();
@@ -115,14 +113,13 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    if (!isAdminAuthorized(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json().catch(() => ({}));
     const id = cleanString(body.id, 'id', MAX_FIELD_LENGTH);
-    const result = await archiveMemoryEvent(id, `clerk:${userId}`, 'Dashboard archive request');
+    const result = await archiveMemoryEvent(id, 'admin:dashboard', 'Dashboard archive request');
 
     if (!result.found || result.error) {
       return NextResponse.json({ error: result.error }, { status: result.status });
@@ -145,8 +142,7 @@ export async function DELETE(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    if (!isAdminAuthorized(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

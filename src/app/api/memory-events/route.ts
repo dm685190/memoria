@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { isAdminAuthorized } from '@/lib/adminAuth';
 import { createSupabaseServiceClient } from '@/lib/memoryEvents';
@@ -14,11 +13,6 @@ type MemoryEvent = {
 
 export async function GET(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId && !isAdminAuthorized(request)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const includeArchived = new URL(request.url).searchParams.get('includeArchived') === 'true';
     const supabase = createSupabaseServiceClient();
     let eventsQuery = supabase
@@ -64,10 +58,9 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    const status = message === 'ADMIN_TASK_TOKEN is not configured' ? 401 : 500;
     return NextResponse.json(
-      { error: status === 401 ? 'Unauthorized' : 'Internal server error' },
-      { status }
+      { error: 'Internal server error' },
+      { status: 500 }
     );
   }
 }

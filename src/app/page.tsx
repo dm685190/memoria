@@ -1,10 +1,3 @@
-import {
-  Show,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-} from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import EmailTest from "../components/EmailTest";
 import SearchBar from "./components/SearchBar";
@@ -100,32 +93,15 @@ async function getMemoryEvents(): Promise<MemoryEvent[]> {
 }
 
 export default async function Home() {
-  const { userId } = await auth();
   const [health, events, redisHealth] = await Promise.all([
     getSupabaseHealth(),
-    userId ? getMemoryEvents() : Promise.resolve([]),
+    getMemoryEvents(),
     checkRedisHealth(),
   ]);
 
   return (
     <main className={styles.pageShell}>
       <section className={styles.card}>
-        <div className={styles.topBar}>
-          <div className={styles.authControls}>
-            <Show when="signed-out">
-              <SignInButton mode="modal">
-                <button className={styles.secondaryButton}>Sign in</button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <button className={styles.primaryButton}>Sign up</button>
-              </SignUpButton>
-            </Show>
-            <Show when="signed-in">
-              <UserButton />
-            </Show>
-          </div>
-        </div>
-
         <h1>Memory Search</h1>
         <p className={styles.lede}>
           A portable memory and recall layer designed to keep
@@ -140,7 +116,7 @@ export default async function Home() {
           <a href="https://github.com/dm685190/memoria/blob/main/docs/stack.md" target="_blank" rel="noreferrer">
             <span>Stack map</span>
             <strong>What each service does</strong>
-            <small>Vercel, Clerk, Supabase, Pinecone, Resend, Upstash.</small>
+            <small>Vercel, Supabase, Pinecone, Resend, Upstash.</small>
           </a>
           <a href="https://github.com/dm685190/memoria/blob/main/docs/observability.md" target="_blank" rel="noreferrer">
             <span>Observability</span>
@@ -167,10 +143,6 @@ export default async function Home() {
             <strong>Resend</strong>
           </div>
           <div>
-            <span>Auth</span>
-            <strong>Clerk</strong>
-          </div>
-          <div>
             <span>Cache layer</span>
             <strong>{redisHealth.ok ? 'Upstash connected' : 'Upstash disconnected'}</strong>
           </div>
@@ -184,19 +156,10 @@ export default async function Home() {
         </div>
 
         {/* Search Section */}
-        <Show when="signed-in">
-          <SearchBar />
-          <MemoryIngestForm />
-        </Show>
+        <SearchBar />
+        <MemoryIngestForm />
 
-        <Show when="signed-in">
-          <RecentMemoryEvents initialEvents={events} />
-        </Show>
-        <Show when="signed-out">
-          <p className={styles.signedInNote}>
-            Sign in to search, ingest, and inspect Memoria memories.
-          </p>
-        </Show>
+        <RecentMemoryEvents initialEvents={events} />
 
         <div className={redisHealth.ok ? styles.healthOk : styles.healthWarning}>
           <span>Upstash Redis</span>
@@ -204,18 +167,10 @@ export default async function Home() {
           {!redisHealth.ok && <p>{redisHealth.error}</p>}
         </div>
 
-        <Show when="signed-in">
-          <p className={styles.signedInNote}>
-            Auth gate is open. The first ghost has a name.
-          </p>
-        </Show>
-
-        {/* Email test section - only visible when signed in */}
-        <Show when="signed-in">
-          <section className={styles.emailTestSection}>
-            <EmailTest />
-          </section>
-        </Show>
+        {/* Email test section */}
+        <section className={styles.emailTestSection}>
+          <EmailTest />
+        </section>
       </section>
     </main>
   );

@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { isAdminAuthorized } from '@/lib/adminAuth';
 import { initPinecone, getPineconeIndex, getEmbedding } from '@/lib/pinecone';
@@ -18,11 +17,6 @@ type MemoryEvent = {
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId && !isAdminAuthorized(request)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const supabase = createSupabaseServiceClient();
 
     // Parse request body
@@ -57,10 +51,6 @@ export async function POST(request: Request) {
       topK: filters && typeof filters === 'object' ? Math.min(Number(limit) * 4 || 40, 100) : Number(limit) || 10,
       includeMetadata: true,
     };
-
-    // Note: Pinecone metadata filtering is limited. We'll do post-filtering for now.
-    // For more advanced filtering, we can use Pinecone's metadata filtering if needed.
-    // For simplicity, we'll fetch more results and filter client-side if filters are provided.
 
     // Search Pinecone
     const searchResults = await index.query(pineconeQuery);
@@ -122,7 +112,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // Apply filtering if filters provided. Only allow safe top-level fields.
+    // Apply filtering if filters provided
     if (filters && typeof filters === 'object') {
       events = events.filter(event => {
         const source = typeof filters.source === 'string' ? filters.source : '';
@@ -135,7 +125,6 @@ export async function POST(request: Request) {
 
     // Format results with scores
     const results = events.map(event => {
-      // Find the corresponding score from Pinecone matches
       const match = matchById.get(event.id);
       return {
         ...event,
@@ -143,7 +132,6 @@ export async function POST(request: Request) {
       };
     }).filter(event => (event.score || 0) >= minimumScore);
 
-    // Sort by score descending and return requested result count after filtering.
     results.sort((a, b) => (b.score || 0) - (a.score || 0));
     const limitedResults = results.slice(0, Number(limit) || 10);
 
@@ -154,10 +142,6 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    if (message === 'ADMIN_TASK_TOKEN is not configured') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     console.error('Error in search-memory:', err);
     return NextResponse.json(
       { error: 'Internal server error' },
