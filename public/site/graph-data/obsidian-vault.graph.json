@@ -1,0 +1,1389 @@
+{
+  "edges": [
+    {
+      "evidence": "# Fallback",
+      "relation": "mentions",
+      "source": "File:825aa4dedee574ce",
+      "target": "Concept:3f52333f60c69d29"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:825aa4dedee574ce",
+      "target": "Concept:199785c01702b633"
+    },
+    {
+      "evidence": "- Event ID: d77c84ed-fd60-464e-b28b-aaf5f6addfda",
+      "relation": "mentions",
+      "source": "File:825aa4dedee574ce",
+      "target": "Concept:64edb8da46df0470"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:825aa4dedee574ce",
+      "target": "Concept:c60ba80faa566626"
+    },
+    {
+      "evidence": "Last updated: 2026-06-07T00:04:25.767472+00:00*",
+      "relation": "mentions",
+      "source": "File:825aa4dedee574ce",
+      "target": "Concept:d13815aaf02fbc09"
+    },
+    {
+      "evidence": "## Related Events",
+      "relation": "mentions",
+      "source": "File:825aa4dedee574ce",
+      "target": "Concept:199785c01702b633"
+    },
+    {
+      "evidence": "# Obsidian",
+      "relation": "mentions",
+      "source": "File:982616138fd68d0b",
+      "target": "Concept:daf95f42c19e2199"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:982616138fd68d0b",
+      "target": "Concept:ee30855590ae914f"
+    },
+    {
+      "evidence": "- Event ID: d77c84ed-fd60-464e-b28b-aaf5f6addfda",
+      "relation": "mentions",
+      "source": "File:982616138fd68d0b",
+      "target": "Concept:5763bb7f48e8a54f"
+    },
+    {
+      "evidence": "Last updated: 2026-06-07T00:04:25.767442+00:00*",
+      "relation": "mentions",
+      "source": "File:982616138fd68d0b",
+      "target": "Concept:b0fd6688be72631c"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:982616138fd68d0b",
+      "target": "Concept:f6b5f80ac27a4aeb"
+    },
+    {
+      "evidence": "## Related Events",
+      "relation": "mentions",
+      "source": "File:982616138fd68d0b",
+      "target": "Concept:ee30855590ae914f"
+    },
+    {
+      "evidence": "# Robin Cloud",
+      "relation": "mentions",
+      "source": "File:412991ff265e5493",
+      "target": "Concept:7f17d21c5a005d85"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:412991ff265e5493",
+      "target": "Concept:30cc829077b51cee"
+    },
+    {
+      "evidence": "- Event ID: 44a32b33-bc41-4dd2-985b-5655aeab6298",
+      "relation": "mentions",
+      "source": "File:412991ff265e5493",
+      "target": "Concept:5869304821fb357c"
+    },
+    {
+      "evidence": "Last updated: 2026-06-07T00:04:25.767387+00:00*",
+      "relation": "mentions",
+      "source": "File:412991ff265e5493",
+      "target": "Concept:7375bb006db53642"
+    },
+    {
+      "evidence": "## Related Events",
+      "relation": "mentions",
+      "source": "File:412991ff265e5493",
+      "target": "Concept:30cc829077b51cee"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:412991ff265e5493",
+      "target": "Concept:5d765b48e180b549"
+    },
+    {
+      "evidence": "# RobinVault",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:e2958484c8a80739"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:1a0dc9d1108d2187"
+    },
+    {
+      "evidence": "## Capture Protocol",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:1a0dc9d1108d2187"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:c0dc4e195476fba8"
+    },
+    {
+      "evidence": "Robin should review only the `Robin/` folder by default unless Dylan explicitly asks for broader vault access.",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:d0a65c6517c496c6"
+    },
+    {
+      "evidence": "A shared Obsidian vault for Robin memory intake and handoff.",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:a2763ac2a1fc2cbd"
+    },
+    {
+      "evidence": "Use `Robin/Inbox.md` for loose notes.",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:7bcb79b00db9ace3"
+    },
+    {
+      "evidence": "Use `Robin/Memory Candidates.md` for things Robin should consider remembering.",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:5c2eb9ede9ba31b1"
+    },
+    {
+      "evidence": "A shared Obsidian vault for Robin memory intake and handoff.",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:8fd3e525ae7fa7d9"
+    },
+    {
+      "evidence": "Use `Robin/Preferences.md` for stable preferences.",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:74d96fef459e2866"
+    },
+    {
+      "evidence": "Use `Robin/Projects.md` for ongoing project context.",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:915643e1210b3028"
+    },
+    {
+      "evidence": "# RobinVault",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:400e1af4cd2d163e"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:ba1c160799f49b07",
+      "target": "Concept:58f881a537763d4f"
+    },
+    {
+      "evidence": "# Capture Protocol",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:4335f940f2aefb90"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:32bf82a267abeb28"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:1ab2ddb5a308ac1a"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:3f45c3ba39512ed4"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:2fac3bf618f40d08"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:db5fdd37ed20e6f5"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:393f9c99b01fa2cd"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:23b849ef23771e6f"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:201047332fa1d24d"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:d97ab8adbdbef52d"
+    },
+    {
+      "evidence": "## Buckets",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:1ab2ddb5a308ac1a"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:e0c9d9f621d7eb24"
+    },
+    {
+      "evidence": "- \u201cNext we should add Clerk auth\u201d \u2192 Projects + Handoff",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:b1010b780cef76e9"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:167b1d418d1fe0b9"
+    },
+    {
+      "evidence": "Robin should automatically decide when Dylan says something worth preserving. Dylan should not need to say \u201cput this here\u201d every time.",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:e037d675f1737a14"
+    },
+    {
+      "evidence": "Capture only things that are durable, directional, preference-shaped, project-relevant, or useful for future handoff.",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:b1fc70be7cf72604"
+    },
+    {
+      "evidence": "- \u201cI want Robin to stay the identity even if we move to Hermes\u201d \u2192 Preferences + Memory Candidates",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:3de9edc6541b8a85"
+    },
+    {
+      "evidence": "### Inbox.md",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:ab95e11e0cbd0a25"
+    },
+    {
+      "evidence": "## Inference Examples",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:201047332fa1d24d"
+    },
+    {
+      "evidence": "4. Keep qmd scope limited to `Robin/` unless Dylan explicitly grants wider vault access.",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:08b037525fb922b5"
+    },
+    {
+      "evidence": "2. Leave ambiguous items in Obsidian.",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:fc36f29c42d9fe28"
+    },
+    {
+      "evidence": "3. Mark processed items instead of deleting them.",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:81f3d71188d69778"
+    },
+    {
+      "evidence": "### Memory Candidates.md",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:1723aa0c815e0d61"
+    },
+    {
+      "evidence": "Use for goals, architecture decisions, implementation plans, current project state, next actions, blockers, or service choices.",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:7eefcb26d1a932fc"
+    },
+    {
+      "evidence": "2. Leave ambiguous items in Obsidian.",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:7d9cbde206e1a39d"
+    },
+    {
+      "evidence": "- \u201cI might use Pinecone later but not yet\u201d \u2192 Projects",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:3e7a3c86662b0204"
+    },
+    {
+      "evidence": "### Preferences.md",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:75e7c31ecbcceff2"
+    },
+    {
+      "evidence": "### Projects.md",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:990c4802edce49e0"
+    },
+    {
+      "evidence": "1. Promote only stable, useful items into workspace memory or project ledgers.",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:c447bed31b51bd9c"
+    },
+    {
+      "evidence": "- \u201cRandom idea: Robin weekly digest\u201d \u2192 Inbox",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:6bc87a55648d9e97"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:0f23559a394bc226"
+    },
+    {
+      "evidence": "Robin should automatically decide when Dylan says something worth preserving. Dylan should not need to say \u201cput this here\u201d every time.",
+      "relation": "mentions",
+      "source": "File:383b628d02ab8491",
+      "target": "Concept:0cb3ed61d4e65dc7"
+    },
+    {
+      "evidence": "# Handoff",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:eb293864b8f21aac"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:5dd6ca2baee19c99"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:83685ca07cd29701"
+    },
+    {
+      "evidence": "- Default review scope: `Robin/` only.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:90bb2054f184bfbd"
+    },
+    {
+      "evidence": "- Dylan says the backend/Robin Cloud work in Discord channel `<#1484581893730078750>` is done for now.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:89b12358323faea7"
+    },
+    {
+      "evidence": "- Samba share is reachable from Dylan's Windows machine.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:795ae1600321621e"
+    },
+    {
+      "evidence": "- Expected gateway swap window: tonight or tomorrow morning.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:7365f59510f544f7"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:30f549020c0f0564"
+    },
+    {
+      "evidence": "## 2026-06-04 \u2014 Hermes cutover readiness",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:cb738dce3ef4eeed"
+    },
+    {
+      "evidence": "- Next: Dylan can add notes to Inbox or Memory Candidates; Robin can promote durable items into long-term memory.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:65dbb657ebd92b39"
+    },
+    {
+      "evidence": "- Next: Dylan can add notes to Inbox or Memory Candidates; Robin can promote durable items into long-term memory.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:789b97d967ba1873"
+    },
+    {
+      "evidence": "Current state, next actions, and context for future Robin sessions.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:f93e042363b4bfd4"
+    },
+    {
+      "evidence": "- OpenClaw remains active until Dylan explicitly approves the cutover.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:f88d9d7dfbcf6bd8"
+    },
+    {
+      "evidence": "- Operator docs, stack docs, and Resend clarification are surfaced.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:c1b77e85b8202320"
+    },
+    {
+      "evidence": "- Production homepage Supabase health is `ok`.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:b00e778bd902058f"
+    },
+    {
+      "evidence": "- `/home/caretaker/.openclaw/workspace/projects/robin-cloud/README.md`",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:dcada8e3a09e9578"
+    },
+    {
+      "evidence": "- Operator docs, stack docs, and Resend clarification are surfaced.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:bb9db2f0d9c8167a"
+    },
+    {
+      "evidence": "Current state, next actions, and context for future Robin sessions.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:e16757940b05b0d2"
+    },
+    {
+      "evidence": "- Dylan says the backend/Robin Cloud work in Discord channel `<#1484581893730078750>` is done for now.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:b97243c9043ffdb3"
+    },
+    {
+      "evidence": "- Samba share is reachable from Dylan's Windows machine.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:a30cf81860fe2f2f"
+    },
+    {
+      "evidence": "- Production homepage Supabase health is `ok`.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:e9186cdfe5c9e287"
+    },
+    {
+      "evidence": "## 2026-06-03 \u2014 Vault live",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:3772141ad9e5e785"
+    },
+    {
+      "evidence": "- Samba share is reachable from Dylan's Windows machine.",
+      "relation": "mentions",
+      "source": "File:315ac5cd7f0271b3",
+      "target": "Concept:57a2b7b66eb15bdb"
+    },
+    {
+      "evidence": "# Inbox",
+      "relation": "mentions",
+      "source": "File:24fa2c078691c051",
+      "target": "Concept:afb8a6e02e7fe4a6"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:24fa2c078691c051",
+      "target": "Concept:f4dcadecab8034f6"
+    },
+    {
+      "evidence": "Quick notes for Robin to review.",
+      "relation": "mentions",
+      "source": "File:24fa2c078691c051",
+      "target": "Concept:ad97639b567904ee"
+    },
+    {
+      "evidence": "# Memory Candidates",
+      "relation": "mentions",
+      "source": "File:03080c32dbe053be",
+      "target": "Concept:e1768a426e516842"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:03080c32dbe053be",
+      "target": "Concept:a0207c17dc33770f"
+    },
+    {
+      "evidence": "## 2026-06-03 \u2014 Capture behavior",
+      "relation": "mentions",
+      "source": "File:03080c32dbe053be",
+      "target": "Concept:6f328f6ea6bb6ec6"
+    },
+    {
+      "evidence": "- Robin should automatically preserve durable, directional, preference-shaped, project-relevant, or handoff-useful statements without requiring Dylan to use a special phrase.",
+      "relation": "mentions",
+      "source": "File:03080c32dbe053be",
+      "target": "Concept:2733c022aa7da173"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:03080c32dbe053be",
+      "target": "Concept:f4975996164fe779"
+    },
+    {
+      "evidence": "Notes here may be promoted into Robin's long-term memory after review.",
+      "relation": "mentions",
+      "source": "File:03080c32dbe053be",
+      "target": "Concept:32a6efe93fd7ce93"
+    },
+    {
+      "evidence": "# Preferences",
+      "relation": "mentions",
+      "source": "File:f68564d4a701a2eb",
+      "target": "Concept:3b6e143b1c6da9bb"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:f68564d4a701a2eb",
+      "target": "Concept:0dd8c2fb667508ba"
+    },
+    {
+      "evidence": "Stable Dylan/Robin preferences worth remembering.",
+      "relation": "mentions",
+      "source": "File:f68564d4a701a2eb",
+      "target": "Concept:f5486cd6db53428a"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:f68564d4a701a2eb",
+      "target": "Concept:ff13767435433adf"
+    },
+    {
+      "evidence": "Stable Dylan/Robin preferences worth remembering.",
+      "relation": "mentions",
+      "source": "File:f68564d4a701a2eb",
+      "target": "Concept:b0f452446f5b3751"
+    },
+    {
+      "evidence": "# Projects",
+      "relation": "mentions",
+      "source": "File:72b002285a74132e",
+      "target": "Concept:04ef7ffe9d1f37e9"
+    },
+    {
+      "evidence": "",
+      "relation": "mentions",
+      "source": "File:72b002285a74132e",
+      "target": "Concept:8a908977ef12122f"
+    }
+  ],
+  "nodes": [
+    {
+      "excerpt": "{}",
+      "id": "File:f5ef5449e1511151",
+      "label": ".obsidian/app.json",
+      "source": ".obsidian/app.json",
+      "type": "File"
+    },
+    {
+      "excerpt": "{}",
+      "id": "File:1a5419981a9b72fc",
+      "label": ".obsidian/appearance.json",
+      "source": ".obsidian/appearance.json",
+      "type": "File"
+    },
+    {
+      "excerpt": "{ \"file-explorer\": true, \"global-search\": true, \"switcher\": true, \"graph\": true, \"backlink\": true, \"canvas\": true, \"outgoing-link\": true, \"tag-pane\": true, \"footnotes\": false, \"pro",
+      "id": "File:a7e40d75ef672bb1",
+      "label": ".obsidian/core-plugins.json",
+      "source": ".obsidian/core-plugins.json",
+      "type": "File"
+    },
+    {
+      "excerpt": "{ \"main\": { \"id\": \"6c4ff87c4a2fe703\", \"type\": \"split\", \"children\": [ { \"id\": \"d25c516782755ea5\", \"type\": \"tabs\", \"children\": [ { \"id\":",
+      "id": "File:e1df231924105974",
+      "label": ".obsidian/workspace.json",
+      "source": ".obsidian/workspace.json",
+      "type": "File"
+    },
+    {
+      "excerpt": "# Fallback This page collects memory events related to the concept **Fallback**. ## Related Events - Event ID: d77c84ed-fd60-464e-b28b-aaf5f6addfda --- Last updated: 2026-06-07T00:04:25.767472+00",
+      "id": "File:825aa4dedee574ce",
+      "label": "Memory Index/Fallback.md",
+      "source": "Memory Index/Fallback.md",
+      "type": "File"
+    },
+    {
+      "excerpt": "# Fallback",
+      "id": "Concept:3f52333f60c69d29",
+      "label": "Fallback",
+      "source": "Memory Index/Fallback.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:199785c01702b633",
+      "label": "Related Events",
+      "source": "Memory Index/Fallback.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Event ID: d77c84ed-fd60-464e-b28b-aaf5f6addfda",
+      "id": "Concept:64edb8da46df0470",
+      "label": "Event ID",
+      "source": "Memory Index/Fallback.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:c60ba80faa566626",
+      "label": "Fallback\n\nThis",
+      "source": "Memory Index/Fallback.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Last updated: 2026-06-07T00:04:25.767472+00:00*",
+      "id": "Concept:d13815aaf02fbc09",
+      "label": "Last",
+      "source": "Memory Index/Fallback.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "# Obsidian This page collects memory events related to the concept **Obsidian**. ## Related Events - Event ID: d77c84ed-fd60-464e-b28b-aaf5f6addfda --- Last updated: 2026-06-07T00:04:25.767442+00",
+      "id": "File:982616138fd68d0b",
+      "label": "Memory Index/Obsidian.md",
+      "source": "Memory Index/Obsidian.md",
+      "type": "File"
+    },
+    {
+      "excerpt": "# Obsidian",
+      "id": "Concept:daf95f42c19e2199",
+      "label": "Obsidian",
+      "source": "Memory Index/Obsidian.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:ee30855590ae914f",
+      "label": "Related Events",
+      "source": "Memory Index/Obsidian.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Event ID: d77c84ed-fd60-464e-b28b-aaf5f6addfda",
+      "id": "Concept:5763bb7f48e8a54f",
+      "label": "Event ID",
+      "source": "Memory Index/Obsidian.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Last updated: 2026-06-07T00:04:25.767442+00:00*",
+      "id": "Concept:b0fd6688be72631c",
+      "label": "Last",
+      "source": "Memory Index/Obsidian.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:f6b5f80ac27a4aeb",
+      "label": "Obsidian\n\nThis",
+      "source": "Memory Index/Obsidian.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "# Robin Cloud This page collects memory events related to the concept **Robin Cloud**. ## Related Events - Event ID: 44a32b33-bc41-4dd2-985b-5655aeab6298 - Event ID: 7f85235c-5911-4f4f-9e7c-5c40f2d",
+      "id": "File:412991ff265e5493",
+      "label": "Memory Index/Robin-Cloud.md",
+      "source": "Memory Index/Robin-Cloud.md",
+      "type": "File"
+    },
+    {
+      "excerpt": "# Robin Cloud",
+      "id": "Concept:7f17d21c5a005d85",
+      "label": "Robin Cloud",
+      "source": "Memory Index/Robin-Cloud.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:30cc829077b51cee",
+      "label": "Related Events",
+      "source": "Memory Index/Robin-Cloud.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Event ID: 44a32b33-bc41-4dd2-985b-5655aeab6298",
+      "id": "Concept:5869304821fb357c",
+      "label": "Event ID",
+      "source": "Memory Index/Robin-Cloud.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Last updated: 2026-06-07T00:04:25.767387+00:00*",
+      "id": "Concept:7375bb006db53642",
+      "label": "Last",
+      "source": "Memory Index/Robin-Cloud.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:5d765b48e180b549",
+      "label": "Robin Cloud\n\nThis",
+      "source": "Memory Index/Robin-Cloud.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "# RobinVault A shared Obsidian vault for Robin memory intake and handoff. Use `Robin/Inbox.md` for loose notes. Use `Robin/Memory Candidates.md` for things Robin should consider remembering. Use `Ro",
+      "id": "File:ba1c160799f49b07",
+      "label": "README.md",
+      "source": "README.md",
+      "type": "File"
+    },
+    {
+      "excerpt": "# RobinVault",
+      "id": "Concept:e2958484c8a80739",
+      "label": "RobinVault",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:1a0dc9d1108d2187",
+      "label": "Capture Protocol",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:c0dc4e195476fba8",
+      "label": "Capture Protocol\nRobin",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Robin should review only the `Robin/` folder by default unless Dylan explicitly asks for broader vault access.",
+      "id": "Concept:d0a65c6517c496c6",
+      "label": "Dylan",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "A shared Obsidian vault for Robin memory intake and handoff.",
+      "id": "Concept:a2763ac2a1fc2cbd",
+      "label": "Handoff",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Use `Robin/Inbox.md` for loose notes.",
+      "id": "Concept:7bcb79b00db9ace3",
+      "label": "Inbox",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Use `Robin/Memory Candidates.md` for things Robin should consider remembering.",
+      "id": "Concept:5c2eb9ede9ba31b1",
+      "label": "Memory Candidates",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "A shared Obsidian vault for Robin memory intake and handoff.",
+      "id": "Concept:8fd3e525ae7fa7d9",
+      "label": "Obsidian",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Use `Robin/Preferences.md` for stable preferences.",
+      "id": "Concept:74d96fef459e2866",
+      "label": "Preferences",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Use `Robin/Projects.md` for ongoing project context.",
+      "id": "Concept:915643e1210b3028",
+      "label": "Projects",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "# RobinVault",
+      "id": "Concept:400e1af4cd2d163e",
+      "label": "Robin",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:58f881a537763d4f",
+      "label": "RobinVault\n\nA",
+      "source": "README.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "# Capture Protocol Robin should automatically decide when Dylan says something worth preserving. Dylan should not need to say \u201cput this here\u201d every time. ## Default Rule Capture only things that are",
+      "id": "File:383b628d02ab8491",
+      "label": "Robin/Capture Protocol.md",
+      "source": "Robin/Capture Protocol.md",
+      "type": "File"
+    },
+    {
+      "excerpt": "# Capture Protocol",
+      "id": "Concept:4335f940f2aefb90",
+      "label": "Capture Protocol",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:32bf82a267abeb28",
+      "label": "Default Rule",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:1ab2ddb5a308ac1a",
+      "label": "Buckets",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:3f45c3ba39512ed4",
+      "label": "Inbox.md",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:2fac3bf618f40d08",
+      "label": "Memory Candidates.md",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:db5fdd37ed20e6f5",
+      "label": "Projects.md",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:393f9c99b01fa2cd",
+      "label": "Handoff.md",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:23b849ef23771e6f",
+      "label": "Preferences.md",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:201047332fa1d24d",
+      "label": "Inference Examples",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:d97ab8adbdbef52d",
+      "label": "Review Discipline",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:e0c9d9f621d7eb24",
+      "label": "Capture Protocol\n\nRobin",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- \u201cNext we should add Clerk auth\u201d \u2192 Projects + Handoff",
+      "id": "Concept:b1010b780cef76e9",
+      "label": "Clerk",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:167b1d418d1fe0b9",
+      "label": "Default Rule\nCapture",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Robin should automatically decide when Dylan says something worth preserving. Dylan should not need to say \u201cput this here\u201d every time.",
+      "id": "Concept:e037d675f1737a14",
+      "label": "Dylan",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Capture only things that are durable, directional, preference-shaped, project-relevant, or useful for future handoff.",
+      "id": "Concept:b1fc70be7cf72604",
+      "label": "Handoff",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- \u201cI want Robin to stay the identity even if we move to Hermes\u201d \u2192 Preferences + Memory Candidates",
+      "id": "Concept:3de9edc6541b8a85",
+      "label": "Hermes",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "### Inbox.md",
+      "id": "Concept:ab95e11e0cbd0a25",
+      "label": "Inbox",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "4. Keep qmd scope limited to `Robin/` unless Dylan explicitly grants wider vault access.",
+      "id": "Concept:08b037525fb922b5",
+      "label": "Keep",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "2. Leave ambiguous items in Obsidian.",
+      "id": "Concept:fc36f29c42d9fe28",
+      "label": "Leave",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "3. Mark processed items instead of deleting them.",
+      "id": "Concept:81f3d71188d69778",
+      "label": "Mark",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "### Memory Candidates.md",
+      "id": "Concept:1723aa0c815e0d61",
+      "label": "Memory Candidates",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Use for goals, architecture decisions, implementation plans, current project state, next actions, blockers, or service choices.",
+      "id": "Concept:7eefcb26d1a932fc",
+      "label": "Next",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "2. Leave ambiguous items in Obsidian.",
+      "id": "Concept:7d9cbde206e1a39d",
+      "label": "Obsidian",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- \u201cI might use Pinecone later but not yet\u201d \u2192 Projects",
+      "id": "Concept:3e7a3c86662b0204",
+      "label": "Pinecone",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "### Preferences.md",
+      "id": "Concept:75e7c31ecbcceff2",
+      "label": "Preferences",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "### Projects.md",
+      "id": "Concept:990c4802edce49e0",
+      "label": "Projects",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "1. Promote only stable, useful items into workspace memory or project ledgers.",
+      "id": "Concept:c447bed31b51bd9c",
+      "label": "Promote",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- \u201cRandom idea: Robin weekly digest\u201d \u2192 Inbox",
+      "id": "Concept:6bc87a55648d9e97",
+      "label": "Random",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:0f23559a394bc226",
+      "label": "Review Discipline\nWhen",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Robin should automatically decide when Dylan says something worth preserving. Dylan should not need to say \u201cput this here\u201d every time.",
+      "id": "Concept:0cb3ed61d4e65dc7",
+      "label": "Robin",
+      "source": "Robin/Capture Protocol.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "# Handoff Current state, next actions, and context for future Robin sessions. ## 2026-06-03 \u2014 Vault live - Samba share is reachable from Dylan's Windows machine. - Default review scope: `Robin/` onl",
+      "id": "File:315ac5cd7f0271b3",
+      "label": "Robin/Handoff.md",
+      "source": "Robin/Handoff.md",
+      "type": "File"
+    },
+    {
+      "excerpt": "# Handoff",
+      "id": "Concept:eb293864b8f21aac",
+      "label": "Handoff",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:5dd6ca2baee19c99",
+      "label": "2026-06-03 \u2014 Vault live",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:83685ca07cd29701",
+      "label": "2026-06-04 \u2014 Hermes cutover readiness",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Default review scope: `Robin/` only.",
+      "id": "Concept:90bb2054f184bfbd",
+      "label": "Default",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Dylan says the backend/Robin Cloud work in Discord channel `<#1484581893730078750>` is done for now.",
+      "id": "Concept:89b12358323faea7",
+      "label": "Discord",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Samba share is reachable from Dylan's Windows machine.",
+      "id": "Concept:795ae1600321621e",
+      "label": "Dylan",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Expected gateway swap window: tonight or tomorrow morning.",
+      "id": "Concept:7365f59510f544f7",
+      "label": "Expected",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:30f549020c0f0564",
+      "label": "Handoff\n\nCurrent",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "## 2026-06-04 \u2014 Hermes cutover readiness",
+      "id": "Concept:cb738dce3ef4eeed",
+      "label": "Hermes",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Next: Dylan can add notes to Inbox or Memory Candidates; Robin can promote durable items into long-term memory.",
+      "id": "Concept:65dbb657ebd92b39",
+      "label": "Inbox",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Next: Dylan can add notes to Inbox or Memory Candidates; Robin can promote durable items into long-term memory.",
+      "id": "Concept:789b97d967ba1873",
+      "label": "Memory Candidates",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Current state, next actions, and context for future Robin sessions.",
+      "id": "Concept:f93e042363b4bfd4",
+      "label": "Next",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- OpenClaw remains active until Dylan explicitly approves the cutover.",
+      "id": "Concept:f88d9d7dfbcf6bd8",
+      "label": "OpenClaw",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Operator docs, stack docs, and Resend clarification are surfaced.",
+      "id": "Concept:c1b77e85b8202320",
+      "label": "Operator",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Production homepage Supabase health is `ok`.",
+      "id": "Concept:b00e778bd902058f",
+      "label": "Production",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- `/home/caretaker/.openclaw/workspace/projects/robin-cloud/README.md`",
+      "id": "Concept:dcada8e3a09e9578",
+      "label": "README",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Operator docs, stack docs, and Resend clarification are surfaced.",
+      "id": "Concept:bb9db2f0d9c8167a",
+      "label": "Resend",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Current state, next actions, and context for future Robin sessions.",
+      "id": "Concept:e16757940b05b0d2",
+      "label": "Robin",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Dylan says the backend/Robin Cloud work in Discord channel `<#1484581893730078750>` is done for now.",
+      "id": "Concept:b97243c9043ffdb3",
+      "label": "Robin Cloud",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Samba share is reachable from Dylan's Windows machine.",
+      "id": "Concept:a30cf81860fe2f2f",
+      "label": "Samba",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Production homepage Supabase health is `ok`.",
+      "id": "Concept:e9186cdfe5c9e287",
+      "label": "Supabase",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "## 2026-06-03 \u2014 Vault live",
+      "id": "Concept:3772141ad9e5e785",
+      "label": "Vault",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Samba share is reachable from Dylan's Windows machine.",
+      "id": "Concept:57a2b7b66eb15bdb",
+      "label": "Windows",
+      "source": "Robin/Handoff.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "# Inbox Quick notes for Robin to review.",
+      "id": "File:24fa2c078691c051",
+      "label": "Robin/Inbox.md",
+      "source": "Robin/Inbox.md",
+      "type": "File"
+    },
+    {
+      "excerpt": "# Inbox",
+      "id": "Concept:afb8a6e02e7fe4a6",
+      "label": "Inbox",
+      "source": "Robin/Inbox.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:f4dcadecab8034f6",
+      "label": "Inbox\n\nQuick",
+      "source": "Robin/Inbox.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Quick notes for Robin to review.",
+      "id": "Concept:ad97639b567904ee",
+      "label": "Robin",
+      "source": "Robin/Inbox.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "# Memory Candidates Notes here may be promoted into Robin's long-term memory after review. ## 2026-06-03 \u2014 Capture behavior - Robin should automatically preserve durable, directional, preference-sha",
+      "id": "File:03080c32dbe053be",
+      "label": "Robin/Memory Candidates.md",
+      "source": "Robin/Memory Candidates.md",
+      "type": "File"
+    },
+    {
+      "excerpt": "# Memory Candidates",
+      "id": "Concept:e1768a426e516842",
+      "label": "Memory Candidates",
+      "source": "Robin/Memory Candidates.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:a0207c17dc33770f",
+      "label": "2026-06-03 \u2014 Capture behavior",
+      "source": "Robin/Memory Candidates.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "## 2026-06-03 \u2014 Capture behavior",
+      "id": "Concept:6f328f6ea6bb6ec6",
+      "label": "Capture",
+      "source": "Robin/Memory Candidates.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "- Robin should automatically preserve durable, directional, preference-shaped, project-relevant, or handoff-useful statements without requiring Dylan to use a special phrase.",
+      "id": "Concept:2733c022aa7da173",
+      "label": "Dylan",
+      "source": "Robin/Memory Candidates.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:f4975996164fe779",
+      "label": "Memory Candidates\n\nNotes",
+      "source": "Robin/Memory Candidates.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Notes here may be promoted into Robin's long-term memory after review.",
+      "id": "Concept:32a6efe93fd7ce93",
+      "label": "Robin",
+      "source": "Robin/Memory Candidates.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "# Preferences Stable Dylan/Robin preferences worth remembering. ## 2026-06-03 - Dylan chose `Robin` as the identity-stable assistant folder name, independent of runtime/vendor. ## 2026-06-03 - Dyla",
+      "id": "File:f68564d4a701a2eb",
+      "label": "Robin/Preferences.md",
+      "source": "Robin/Preferences.md",
+      "type": "File"
+    },
+    {
+      "excerpt": "# Preferences",
+      "id": "Concept:3b6e143b1c6da9bb",
+      "label": "Preferences",
+      "source": "Robin/Preferences.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:0dd8c2fb667508ba",
+      "label": "2026-06-03",
+      "source": "Robin/Preferences.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Stable Dylan/Robin preferences worth remembering.",
+      "id": "Concept:f5486cd6db53428a",
+      "label": "Dylan",
+      "source": "Robin/Preferences.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:ff13767435433adf",
+      "label": "Preferences\n\nStable Dylan",
+      "source": "Robin/Preferences.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "Stable Dylan/Robin preferences worth remembering.",
+      "id": "Concept:b0f452446f5b3751",
+      "label": "Robin",
+      "source": "Robin/Preferences.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "# Projects Durable project notes and links.",
+      "id": "File:72b002285a74132e",
+      "label": "Robin/Projects.md",
+      "source": "Robin/Projects.md",
+      "type": "File"
+    },
+    {
+      "excerpt": "# Projects",
+      "id": "Concept:04ef7ffe9d1f37e9",
+      "label": "Projects",
+      "source": "Robin/Projects.md",
+      "type": "Concept"
+    },
+    {
+      "excerpt": "",
+      "id": "Concept:8a908977ef12122f",
+      "label": "Projects\n\nDurable",
+      "source": "Robin/Projects.md",
+      "type": "Concept"
+    }
+  ],
+  "root": "/home/caretaker/Obsidian/RobinVault"
+}

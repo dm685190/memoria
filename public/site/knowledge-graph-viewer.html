@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Robin Graph Scalable Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=10.0, user-scalable=yes">
+    <script type="text/javascript" src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+    <style type="text/css">
+        #mynetwork {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            background-color: #f8f9fa;
+            touch-action: none; /* Critical for touch gestures */
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        .controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #fitButton {
+            background-color: #28a745;
+        }
+        #fitButton:hover {
+            background-color: #218838;
+        }
+        #infoPanel {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            max-width: 80vw;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .node-details {
+            background: rgba(255,255,255,0.1);
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="fitButton">Fit to View</button>
+        <button id="resetButton">Reset View</button>
+        <button id="zoomOutButton">Zoom Out</button>
+        <button id="zoomInButton">Zoom In</button>
+    </div>
+    
+    <div id="infoPanel">
+        <div id="graphInfo">Loading graph...</div>
+        <div id="nodeInfo" class="node-details"></div>
+    </div>
+
+    <div id="mynetwork"></div>
+
+    <script type="text/javascript">
+        let network = null;
+        let allNodes = [];
+        let allEdges = [];
+        const VIEW_PADDING = 20; // pixels
+
+        // Initialize the network when the page loads
+        function initNetwork() {
+            const container = document.getElementById('mynetwork');
+            const options = {
+                nodes: {
+                    shape: 'dot',
+                    size: 8, // Smaller nodes for scalability
+                    font: {
+                        size: 10
+                    },
+                    borderWidth: 1
+                },
+                edges: {
+                    width: 1,
+                    color: {
+                        color: '#848484',
+                        highlight: '#ff0000',
+                        hover: '#ff0000'
+                    },
+                    smooth: {
+                        type: 'continuous',
+                        forceDirection: 'none'
+                    },
+                    shadow: false
+                },
+                physics: {
+                    enabled: false // Static graph for exploration
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 150,
+                    hideEdgesOnDrag: false,
+                    hideNodesOnDrag: false,
+                    // Critical for touch devices
+                    touchEnabled: true,
+                    zoomView: true,
+                    dragView: true,
+                    dragNetwork: true,
+                    hoverConnectedEdges: true,
+                    selectConnectedEdges: false,
+                    selectable: true,
+                    multiselect: false,
+                    // Improved touch sensitivity
+                    zoomSpeed: 0.5
+                },
+                manipulation: {
+                    enabled: false
+                },
+                // Ensure proper viewport handling
+                configure: {
+                    enabled: false
+                }
+            };
+
+            network = new vis.Network(container, { 
+                nodes: new vis.DataSet(), 
+                edges: new vis.DataSet() 
+            }, options);
+
+            // Add event listener for clicks to show node/edge details
+            network.on("click", function (params) {
+                params.event.preventDefault();
+                const detailEl = document.getElementById('nodeInfo');
+                if (params.nodes.length > 0) {
+                    const nodeId = params.nodes[0];
+                    const node = allNodes.find(n => n.id === nodeId);
+                    if (node) {
+                        detailEl.innerHTML = `
+                            <div class="node-details">
+                                <strong>Node:</strong> ${node.label || node.id}<br>
+                                <strong>Type:</strong> ${node.type || 'Unknown'}<br>
+                                <strong>Source:</strong> ${node.source || 'Unknown'}<br>
+                                ${node.excerpt ? `<strong>Excerpt:</strong> ${node.excerpt.substring(0, 100)}${node.excerpt.length > 100 ? '...' : ''}` : ''}
+                            </div>
+                        `;
+                    }
+                } else if (params.edges.length > 0) {
+                    const edgeId = params.edges[0];
+                    const edge = allEdges.find(e => e.id === edgeId || (e.source + '_to_' + e.target) === edgeId);
+                    if (edge) {
+                        detailEl.innerHTML = `
+                            <div class="node-details">
+                                <strong>Edge:</strong> ${edge.source} → ${edge.target}<br>
+                                <strong>Relation:</strong> ${edge.relation || 'Unknown'}<br>
+                                ${edge.evidence ? `<strong>Evidence:</strong> ${edge.evidence.substring(0, 100)}${edge.evidence.length > 100 ? '...' : ''}` : ''}
+                            </div>
+                        `;
+                    }
+                } else {
+                    document.getElementById('nodeInfo').innerHTML = '';
+                }
+            });
+
+            // Add hover event for subtle feedback
+            network.on("hoverNode", function (params) {
+                // Could add subtle highlight if needed
+            });
+            network.on("blurNode", function (params) {
+                // Remove hover effect
+            });
+        }
+
+        // Handle file input (for future file loading capability)
+        function setupFileInput() {
+            // For now, we'll load from predefined exports
+            // This could be extended to support drag-drop or file selection
+        }
+
+        // Load graph data from a JSON export
+        function loadGraphFromExport(exportPath) {
+            fetch(exportPath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loadGraph(data);
+                    updateGraphInfo(data);
+                })
+                .catch(error => {
+                    console.error('Error loading graph:', error);
+                    document.getElementById('graphInfo').innerHTML = 
+                        `<div style="color: #dc3545;">Error loading graph: ${error.message}</div>`;
+                });
+        }
+
+        // Load graph data into vis.js
+        function loadGraph(data) {
+            // Clear existing data
+            if (network) {
+                network.body.data.nodes.clear();
+                network.body.data.edges.clear();
+            }
+
+            allNodes = data.nodes || [];
+            allEdges = data.edges || [];
+
+            // Add nodes to vis dataset
+            const nodes = new vis.DataSet();
+            allNodes.forEach(node => {
+                // Ensure required fields
+                const visNode = {
+                    id: node.id,
+                    label: node.label || node.id,
+                    title: `Type: ${node.type || 'Unknown'}\\nSource: ${node.source || 'Unknown'}${node.excerpt ? '\\nExcerpt: ' + node.excerpt.substring(0, 100) + (node.excerpt.length > 100 ? '...' : '') : ''}`
+                };
+
+                // Color by node type for better visual distinction
+                switch (node.type) {
+                    case 'MemoryEvent':
+                        visNode.color = { background: '#ff9999', border: '#cc0000' };
+                        visNode.shape = 'square';
+                        visNode.size = 10;
+                        break;
+                    case 'Concept':
+                        visNode.color = { background: '#99ccff', border: '#0066cc' };
+                        visNode.shape = 'dot';
+                        visNode.size = 8;
+                        break;
+                    case 'File':
+                        visNode.color = { background: '#99ff99', border: '#009900' };
+                        visNode.shape = 'diamond';
+                        visNode.size = 9;
+                        break;
+                    default:
+                        visNode.color = { background: '#dddddd', border: '#999999' };
+                        visNode.shape = 'dot';
+                        visNode.size = 8;
+                }
+
+                nodes.add(visNode);
+            });
+
+            // Add edges to vis dataset
+            const edges = new vis.DataSet();
+            allEdges.forEach((edge, index) => {
+                const visEdge = {
+                    id: edge.id || edge.source + '_to_' + edge.target + '_' + index,
+                    from: edge.source,
+                    to: edge.target,
+                    label: edge.relation || '',
+                    title: `Relation: ${edge.relation || 'Unknown'}${edge.evidence ? '\\nEvidence: ' + edge.evidence.substring(0, 100) + (edge.evidence.length > 100 ? '...' : '') : ''}`
+                };
+
+                // Style edges by relation
+                if (edge.relation === 'mentions') {
+                    visEdge.color = { color: '#cccccc' };
+                    visEdge.dashes = true;
+                    visEdge.width = 1;
+                } else if (edge.relation === 'defines') {
+                    visEdge.color = { color: '#28a745' };
+                    visEdge.width = 2;
+                } else if (edge.relation === 'protects') {
+                    visEdge.color = { color: '#dc3545' };
+                    visEdge.width = 2;
+                } else {
+                    visEdge.color = { color: '#666666' };
+                    visEdge.width = 1;
+                }
+
+                edges.add(visEdge);
+            });
+
+            // Set the data
+            network.body.data.nodes.add(nodes);
+            network.body.data.edges.add(edges);
+
+            // Fit to view initially with padding
+            setTimeout(() => {
+                network.fit({ 
+                    animation: {
+                        duration: 1000,
+                        easingFunction: 'easeInOutQuad'
+                    }
+                });
+            }, 300); // Slight delay to ensure container is ready
+
+            // Enable buttons
+            document.getElementById('fitButton').disabled = false;
+            document.getElementById('resetButton').disabled = false;
+            document.getElementById('zoomOutButton').disabled = false;
+            document.getElementById('zoomInButton').disabled = false;
+        }
+
+        // Update graph info panel
+        function updateGraphInfo(data) {
+            const infoEl = document.getElementById('graphInfo');
+            infoEl.innerHTML = `
+                <strong>Graph Loaded</strong><br>
+                Nodes: ${data.nodes ? data.nodes.length : 0}<br>
+                Edges: ${data.edges ? data.edges.length : 0}<br>
+                <small>Tap nodes/edges for details</small>
+            `;
+        }
+
+        // Button event handlers
+        function setupButtonHandlers() {
+            document.getElementById('fitButton').addEventListener('click', () => {
+                if (network) {
+                    network.fit({ 
+                        animation: {
+                            duration: 800,
+                            easingFunction: 'easeInOutQuad'
+                        }
+                    });
+                }
+            });
+
+            document.getElementById('resetButton').addEventListener('click', () => {
+                if (network) {
+                    network.moveTo({
+                        scale: 1.0,
+                        offset: { x: 0, y: 0 },
+                        animation: {
+                            duration: 500,
+                            easingFunction: 'easeInOutQuad'
+                        }
+                    });
+                }
+            });
+
+            document.getElementById('zoomOutButton').addEventListener('click', () => {
+                if (network) {
+                    const scale = network.getScale();
+                    network.moveTo({
+                        scale: Math.max(0.1, scale * 0.7),
+                        animation: {
+                            duration: 300,
+                            easingFunction: 'easeOutQuad'
+                        }
+                    });
+                }
+            });
+
+            document.getElementById('zoomInButton').addEventListener('click', () => {
+                if (network) {
+                    const scale = network.getScale();
+                    network.moveTo({
+                        scale: Math.min(10.0, scale * 1.5),
+                        animation: {
+                            duration: 300,
+                            easingFunction: 'easeOutQuad'
+                        }
+                    });
+                }
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initNetwork();
+            setupButtonHandlers();
+            setupFileInput();
+            
+            // Try to load a default graph - you can change this path
+            // For now, we'll show a message and wait for manual selection
+            document.getElementById('graphInfo').innerHTML = 
+                '<div>Loading default graph...</div>';
+                
+            // Try to load the obsidian vault as example
+            loadGraphFromExport('/sprlrsrchlab.graph.json');
+        });
+
+        // Handle visibility changes (important for mobile)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Page is hidden/backgrounded
+            } else {
+                // Page is visible/foregrounded
+                // Refitting might be helpful after returning from background
+                if (network) {
+                    setTimeout(() => {
+                        network.fit({ animation: { duration: 500 } });
+                    }, 300);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

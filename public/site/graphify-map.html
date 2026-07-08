@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+  <title>Graphify Knowledge Map · SPRL RSRCH LAB</title>
+  <meta name="description" content="An interactive concept sketch for Graphify-style knowledge maps: explore nodes, relationships, and context slices without dumping the whole archive." />
+  <style>
+    :root {
+      --bg: #080a12;
+      --panel: rgba(16, 20, 36, 0.76);
+      --panel-strong: rgba(24, 29, 52, 0.92);
+      --text: #edf2ff;
+      --muted: #9ba7c5;
+      --line: rgba(156, 176, 255, 0.18);
+      --violet: #9b7cff;
+      --cyan: #55e7ff;
+      --green: #83ffb6;
+      --amber: #ffd166;
+      --rose: #ff6b9d;
+      --shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--bg); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(155, 124, 255, 0.25), transparent 30rem),
+        radial-gradient(circle at 82% 20%, rgba(85, 231, 255, 0.17), transparent 28rem),
+        radial-gradient(circle at 45% 94%, rgba(131, 255, 182, 0.09), transparent 32rem),
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+        var(--bg);
+      background-size: auto, auto, auto, 42px 42px, 42px 42px, auto;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent 0%, rgba(8,10,18,0.5) 78%, #080a12 100%);
+    }
+    a { color: inherit; }
+    .wrap { position: relative; z-index: 1; width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 34px 0 54px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 54px; }
+    .brand { display: flex; align-items: center; gap: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-size: 13px; color: var(--muted); }
+    .mark { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 12px; display: grid; place-items: center; background: rgba(255,255,255,0.04); box-shadow: inset 0 0 24px rgba(85,231,255,0.08); }
+    nav { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .nav-link { text-decoration: none; color: var(--muted); font-size: 14px; padding: 9px 12px; border: 1px solid transparent; border-radius: 999px; }
+    .nav-link:hover, .nav-link.active { color: var(--text); border-color: var(--line); background: rgba(255,255,255,0.035); }
+    .hero { display: block; }
+    .eyebrow { display: inline-flex; gap: 8px; align-items: center; color: var(--green); border: 1px solid rgba(131,255,182,0.24); background: rgba(131,255,182,0.06); border-radius: 999px; padding: 8px 12px; font-size: 13px; margin-bottom: 18px; }
+    h1 { margin: 0; font-size: clamp(42px, 7vw, 82px); line-height: 0.96; letter-spacing: -0.07em; }
+    .gradient { background: linear-gradient(92deg, var(--text), #c9bfff 45%, #8df1ff 82%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lede { color: var(--muted); font-size: clamp(17px, 1.8vw, 21px); line-height: 1.62; max-width: 680px; margin: 24px 0 0; }
+    .actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 30px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 18px; border-radius: 14px; text-decoration: none; font-weight: 680; border: 1px solid var(--line); background: rgba(255,255,255,0.055); color: var(--text); cursor: pointer; }
+    .button.primary { border-color: rgba(85,231,255,0.48); background: linear-gradient(135deg, rgba(155,124,255,0.95), rgba(85,231,255,0.72)); color: #050711; box-shadow: 0 18px 44px rgba(85,231,255,0.14); }
+    .button:hover { transform: translateY(-1px); }
+    .panel { border: 1px solid var(--line); background: var(--panel); border-radius: 24px; box-shadow: var(--shadow); backdrop-filter: blur(16px); }
+    .map-card { min-height: 520px; overflow: hidden; position: relative; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,0.035); }
+    .search { flex: 1; min-width: 180px; min-height: 42px; border-radius: 12px; border: 1px solid rgba(156,176,255,0.22); background: rgba(255,255,255,0.055); color: var(--text); padding: 0 13px; outline: none; font: inherit; }
+    .search:focus { border-color: rgba(85,231,255,0.55); box-shadow: 0 0 0 4px rgba(85,231,255,0.09); }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--muted); padding: 8px 10px; border-radius: 999px; cursor: pointer; font-size: 12px; }
+    .chip.active { color: #051018; background: var(--cyan); border-color: transparent; }
+    .graph-wrap { display: grid; grid-template-columns: 1fr 300px; min-height: 462px; }
+    svg { width: 100%; height: 462px; display: block; background: radial-gradient(circle at center, rgba(85,231,255,0.055), transparent 34rem); cursor: move; touch-action: none; }
+    .edge { stroke: rgba(156,176,255,0.28); stroke-width: 1.5; }
+    .edge.focus { stroke: var(--cyan); stroke-width: 2.5; }
+    .node circle { stroke: rgba(237,242,255,0.55); stroke-width: 1.5; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.35)); cursor: pointer; }
+    .node text { fill: var(--text); font-size: 12px; font-weight: 700; paint-order: stroke; stroke: rgba(8,10,18,0.82); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+    .node.dim { opacity: 0.28; }
+    .node.selected circle { stroke: var(--green); stroke-width: 3; }
+    .side { border-left: 1px solid var(--line); padding: 20px; background: rgba(8,10,18,0.28); overflow-y: auto; }
+    .side h2 { margin: 0 0 8px; font-size: 21px; letter-spacing: -0.03em; }
+    .type { display: inline-flex; margin-bottom: 14px; color: var(--green); border: 1px solid rgba(131,255,182,0.24); background: rgba(131,255,182,0.06); border-radius: 999px; padding: 5px 9px; font-size: 12px; }
+    .side p { color: var(--muted); line-height: 1.58; margin: 0 0 16px; }
+    .connections { display: grid; gap: 8px; }
+    .connection { padding: 10px; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; background: rgba(255,255,255,0.035); color: var(--muted); font-size: 13px; }
+    .section { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 34px; }
+    .tile { border: 1px solid var(--line); background: var(--panel-strong); border-radius: 20px; padding: 20px; }
+    .tile .num { color: var(--cyan); font-weight: 800; font-size: 22px; margin-bottom: 6px; }
+    .tile p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .note { margin-top: 18px; color: rgba(155,167,197,0.78); font-size: 13px; line-height: 1.55; }
+    footer { margin-top: 54px; color: rgba(155,167,197,0.72); font-size: 13px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 22px; }
+    
+    .map-controls {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      display: flex;
+      gap: 5px;
+      z-index: 10;
+    }
+    .map-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-weight: bold;
+      user-select: none;
+    }
+    .map-btn:hover { background: rgba(255,255,255,0.1); }
+
+    @media (max-width: 920px) { 
+      .hero { grid-template-columns: 1fr; } 
+      .graph-wrap { grid-template-columns: 1fr; } 
+      .side { border-left: 0; border-top: 1px solid var(--line); max-height: 250px; } 
+      .section { grid-template-columns: 1fr; } 
+      nav { display: none; } 
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <a class="brand" href="/" aria-label="Spiral Research Lab home"><span class="mark">⌁</span><span>Spiral Research Lab</span></a>
+      <nav aria-label="Primary">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link active" href="/graphify-map.html">Knowledge Map</a>
+        <a class="nav-link" href="https://ms.sprlrsrchlab.com/">Memory Search</a>
+        <a class="nav-link" href="/lab.html">Enter lab</a>
+      </nav>
+    </header>
+
+    <section class="hero" aria-labelledby="title">
+      <div>
+        <div class="eyebrow">● graph memory · context slices · local-first retrieval</div>
+        <h1 id="title"><span class="gradient">Knowledge maps</span> for archives that should not drown the prompt.</h1>
+        <p class="lede">A Graphify-style map turns projects, documents, entities, and decisions into explorable nodes. Instead of pouring the whole archive into an agent, select a small living neighborhood and send only that context.</p>
+        <div class="actions">
+          <button class="button primary" type="button" id="focusGraphify">Focus Graphify →</button>
+          <a class="button" href="https://ms.sprlrsrchlab.com/">Open Memory Search</a>
+        </div>
+        <p class="note">This page is a visual prototype: safe, static, and intentionally small. The NAS tomb remains closed.</p>
+      </div>
+    </section>
+
+    <section class="panel map-card" aria-label="Interactive knowledge map prototype">
+        <div class="toolbar">
+          <input class="search" id="search" type="search" placeholder="Search nodes: graphify, robin, supabase…" />
+          <div class="chips" aria-label="Node filters">
+            <button class="chip active" data-filter="all" type="button">All</button>
+            <button class="chip" data-filter="project" type="button">Projects</button>
+            <button class="chip" data-filter="system" type="button">Systems</button>
+            <button class="chip" data-filter="decision" type="button">Decisions</button>
+          </div>
+        </div>
+        <div class="graph-wrap">
+          <div style="position: relative; overflow: hidden; background: radial-gradient(circle at center, rgba(85,231,255,0.055), transparent 34rem);">
+            <svg id="graph" role="img" aria-label="Interactive graph of Graphify knowledge map concepts">
+              <g id="viewport"></g>
+            </svg>
+            <div class="map-controls">
+              <div class="map-btn" id="zoomIn">+</div>
+              <div class="map-btn" id="zoomOut">−</div>
+              <div class="map-btn" id="resetMap">⟲</div>
+            </div>
+          </div>
+          <aside class="side" id="details" aria-live="polite"></aside>
+        </div>
+      </section>
+    </section>
+
+    <section class="section" aria-label="Map principles">
+      <div class="tile"><div class="num">01</div><p><strong>Neighborhood first.</strong> Start with one concept, expand one or two hops, avoid rendering the entire corpse.</p></div>
+      <div class="tile"><div class="num">02</div><p><strong>Explain edges.</strong> Every connection should carry evidence: file, note, timestamp, or schema relation.</p></div>
+      <div class="tile"><div class="num">03</div><p><strong>Context control.</strong> Selected nodes become the retrieval packet for Robin/Hermes, keeping tokens lean.</p></div>
+    </section>
+
+    <footer>
+      <span>© Spiral Research Lab</span>
+      <span><a href="/">Home</a> · <a href="https://ms.sprlrsrchlab.com/">Robin — Memory Search</a> · <a href="/lab.html">protected lab entrance</a></span>
+    </footer>
+  </main>
+
+  <script>
+    const nodes = [
+      { id: 'graphify', label: 'Graphify Map', type: 'project', x: 390, y: 210, r: 34, color: '#55e7ff', desc: 'Interactive graph browser for project memory, architecture, decisions, and retrieval context.' },
+      { id: 'robin-cloud', label: 'Robin Cloud', type: 'project', x: 190, y: 120, r: 25, color: '#9b7cff', desc: 'Memory API and agent-facing cloud layer. Useful pilot corpus for graph extraction.' },
+      { id: 'memory-search', label: 'Memory Search', type: 'system', x: 600, y: 105, r: 25, color: '#83ffb6', desc: 'Search interface for finding relevant memory without flooding prompts.' },
+      { id: 'supabase', label: 'Supabase', type: 'system', x: 155, y: 280, r: 22, color: '#83ffb6', desc: 'Database layer and schema source for relationships, policies, and memory events.' },
+      { id: 'hermes', label: 'Hermes', type: 'system', x: 605, y: 300, r: 27, color: '#ffd166', desc: 'Agent runtime that can consume selected graph neighborhoods as concise context.' },
+      { id: 'local-first', label: 'Local-first', type: 'decision', x: 370, y: 65, r: 21, color: '#ff6b9d', desc: 'Pilot constraint: code-heavy, controlled inputs, no secrets, no full chat exports.' },
+      { id: 'context-slice', label: 'Context Slice', type: 'decision', x: 385, y: 360, r: 24, color: '#ff6b9d', desc: 'A small selected subgraph that becomes the retrieval packet for an agent.' },
+      { id: 'evidence', label: 'Evidence Edges', type: 'decision', x: 735, y: 210, r: 22, color: '#ff6b9d', desc: 'Edges should be backed by files, schemas, docs, or dated decisions.' }
+    ];
+    const edges = [
+      ['graphify','robin-cloud','indexes project memory'], ['graphify','memory-search','visual companion'], ['graphify','supabase','reads schema/events'], ['graphify','hermes','feeds selected context'], ['graphify','local-first','pilot constraint'], ['graphify','context-slice','primary output'], ['graphify','evidence','trust layer'], ['robin-cloud','supabase','stores memory events'], ['memory-search','hermes','recall for agents'], ['context-slice','hermes','lean prompt packet'], ['evidence','supabase','schema proof'], ['local-first','robin-cloud','controlled corpus']
+    ];
+    const svg = document.getElementById('graph');
+    const viewport = document.getElementById('viewport');
+    const details = document.getElementById('details');
+    const search = document.getElementById('search');
+    let selected = 'graphify';
+    let filter = 'all';
+
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX, startY;
+    let initialDist = 0;
+
+    function updateTransform() {
+      viewport.setAttribute('transform', `translate(${translateX}, ${translateY}) scale(${scale})`);
+    }
+
+    svg.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX - translateX;
+      startY = e.clientY - translateY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      translateX = e.clientX - startX;
+      translateY = e.clientY - startY;
+      updateTransform();
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    svg.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomSpeed = 0.001;
+      const factor = 1 - e.deltaY * zoomSpeed;
+      
+      const rect = svg.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      const newScale = Math.min(Math.max(scale * factor, 0.2), 5);
+      
+      translateX = mouseX - (mouseX - translateX) * (newScale / scale);
+      translateY = mouseY - (mouseY - translateY) * (newScale / scale);
+      scale = newScale;
+      
+      updateTransform();
+    }, { passive: false });
+
+    svg.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX - translateX;
+        startY = e.touches[0].clientY - translateY;
+      } else if (e.touches.length === 2) {
+        initialDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: false });
+
+    svg.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1 && isDragging) {
+        translateX = e.touches[0].clientX - startX;
+        translateY = e.touches[0].clientY - startY;
+        updateTransform();
+      } else if (e.touches.length === 2) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const factor = dist / initialDist;
+        initialDist = dist;
+        
+        const rect = svg.getBoundingClientRect();
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+
+        const newScale = Math.min(Math.max(scale * factor, 0.2), 5);
+        translateX = midX - (midX - translateX) * (newScale / scale);
+        translateY = midY - (midY - translateY) * (newScale / scale);
+        scale = newScale;
+        updateTransform();
+      }
+    }, { passive: false });
+
+    svg.addEventListener('touchend', () => { isDragging = false; });
+
+    document.getElementById('zoomIn').onclick = () => { scale *= 1.2; updateTransform(); };
+    document.getElementById('zoomOut').onclick = () => { scale /= 1.2; updateTransform(); };
+    document.getElementById('resetMap').onclick = () => { scale = 1; translateX = 0; translateY = 0; updateTransform(); };
+
+    function connected(id) { return edges.filter(e => e[0] === id || e[1] === id); }
+    function node(id) { return nodes.find(n => n.id === id); }
+    function matches(n) {
+      const q = search.value.trim().toLowerCase();
+      return (filter === 'all' || n.type === filter) && (!q || n.label.toLowerCase().includes(q) || n.id.includes(q) || n.desc.toLowerCase().includes(q));
+    }
+    function render() {
+      viewport.innerHTML = '';
+      const visible = new Set(nodes.filter(matches).map(n => n.id));
+      const selectedConnections = new Set(connected(selected).flatMap(e => [e[0], e[1]]));
+      for (const [a,b,label] of edges) {
+        if (!visible.has(a) || !visible.has(b)) continue;
+        const na = node(a), nb = node(b);
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1', na.x); line.setAttribute('y1', na.y); line.setAttribute('x2', nb.x); line.setAttribute('y2', nb.y);
+        line.setAttribute('class', (a === selected || b === selected) ? 'edge focus' : 'edge');
+        viewport.appendChild(line);
+      }
+      for (const n of nodes) {
+        if (!visible.has(n.id)) continue;
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        g.setAttribute('class', 'node' + (n.id === selected ? ' selected' : '') + (!selectedConnections.has(n.id) && n.id !== selected ? ' dim' : ''));
+        g.setAttribute('tabindex', '0');
+        g.addEventListener('click', (e) => { e.stopPropagation(); selected = n.id; render(); });
+        g.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { selected = n.id; render(); } });
+        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx', n.x); c.setAttribute('cy', n.y); c.setAttribute('r', n.r); c.setAttribute('fill', n.color);
+        const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x', n.x); t.setAttribute('y', n.y + n.r + 19); t.setAttribute('text-anchor','middle'); t.textContent = n.label;
+        g.appendChild(c); g.appendChild(t); viewport.appendChild(g);
+      }
+      const n = node(selected);
+      const rels = connected(selected).map(([a,b,label]) => {
+        const other = node(a === selected ? b : a);
+        return `<div class="connection"><strong>${other.label}</strong><br>${label}</div>`;
+      }).join('');
+      details.innerHTML = `<span class="type">${n.type}</span><h2>${n.label}</h2><p>${n.desc}</p><h3>Connected evidence</h3><div class="connections">${rels}</div>`;
+    }
+    document.querySelectorAll('.chip').forEach(chip => chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active'); filter = chip.dataset.filter; render();
+    }));
+    search.addEventListener('input', render);
+    document.getElementById('focusGraphify').addEventListener('click', () => { selected = 'graphify'; search.value = ''; filter = 'all'; document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.filter === 'all')); render(); });
+    render();
+  </script>
+</body>
+</html>
