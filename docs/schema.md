@@ -1,27 +1,37 @@
 # SQLite schema
 
-## Immutable evidence
+Schema version: 2.
 
-`source_captures`: a source URI, body, SHA-256, and capture timestamp. A changed note creates a new row.
+## Source history
 
-`ledger_events`: timestamped observations with kind, title, body, and source capture reference. They are never updated or deleted by the application.
+`source_captures` stores one exact body per URI/SHA-256 pair.
+
+`source_revisions` records chronological observations and a `supersedes_revision_id`. Reusing earlier content creates a new revision while reusing the content blob. Current state is the latest revision for a URI; no old row is updated.
+
+## Evidence ledger
+
+`ledger_events` stores occurrence time, creation time, content, optional source/revision citations, previous hash, and event hash.
+
+`event_search` is a derivative FTS5 index populated only by insert trigger. `verify` compares its row count with the ledger.
 
 ## Graph
 
-`entities`: normalized names for systems, projects, incidents, decisions, and people.
+`entities` uses normalized unique names. Obsidian source identity is `obsidian:<vault-relative-path-without-extension>`.
 
-`event_entities`: joins evidence to entities.
+`event_entities` and `entity_edges` connect evidence and captured wikilinks. Edge uniqueness is revision-scoped, so a changed or reverted note records a new observation even when it reuses an older content capture.
 
-`entity_edges`: a captured relation such as an Obsidian wikilink. Edges retain the capture that observed them.
+## Promotion workflow
 
-## Derived work
+`promotion_proposals` names target layer/profile, exact statement/hash, conflict key, precondition, rationale, and evidence.
 
-`promotion_proposals`: candidate facts for Hermes/Honcho. Status starts as `proposed`; this software has no approved writer.
+`promotion_reviews` records one append-only approved/rejected decision with reviewer and time.
 
-`event_search`: FTS5 index over event title/body. It is derivative and rebuildable from the ledger.
+`promotion_applications` records external actor/time, observed read-back text/hash, and exact-match verification. It does not perform the application.
 
-## Integrity
+## Access policy
 
-- `source_captures.sha256` identifies exact captured content.
-- Event and edge rows reference their capture when applicable.
-- Packet citations expose event id, source URI, SHA, and capture time.
+`root_authorizations` is an append-only grant/revoke stream. The latest event for an exact resolved URI determines whether ingestion is allowed.
+
+## Enforcement
+
+UPDATE and DELETE triggers protect source, revision, ledger, graph-join, root-authorization, proposal, review, and application tables. Corrections are new rows. Schema migration installs the same controls after backfilling legacy prototype rows and event hashes.
