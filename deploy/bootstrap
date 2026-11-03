@@ -1,0 +1,182 @@
+#!/bin/sh
+# Local-only, first-install bootstrap. Run as root; dry-run is the default.
+set -eu
+
+usage() {
+    cat >&2 <<'EOF'
+usage: deploy/bootstrap --apply --source DIR [options]
+
+Baseline options:
+  --source DIR                 checked-out Memoria source (required)
+  --revision GIT_SHA           require source HEAD to equal this immutable revision
+  --service-user USER          dedicated account (default: memoria)
+  --install-root DIR           application root (default: /opt/memoria)
+  --state-dir DIR              database directory (default: /var/lib/memoria)
+  --backup-dir DIR             backup directory (default: /var/backups/memoria)
+  --adopt-existing              require verification before reusing an existing database
+  --enable-timers              enable, but do not start, daily verify/backup timers
+  --authorize-root DIR --actor NAME
+                               append one explicit Obsidian root authorization
+  --install-packet-bridge --packet-user USER
+                               install reviewed fixed-path read-only packet bridge
+  --apply                      perform changes; otherwise print the plan only
+EOF
+    exit 64
+}
+
+APPLY=0
+SOURCE=
+REVISION=
+SERVICE_USER=memoria
+INSTALL_ROOT=/opt/memoria
+STATE_DIR=/var/lib/memoria
+BACKUP_DIR=/var/backups/memoria
+ENABLE_TIMERS=0
+ADOPT_EXISTING=0
+AUTHORIZE_ROOT=
+ACTOR=
+INSTALL_BRIDGE=0
+PACKET_USER=
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --apply) APPLY=1; shift ;;
+        --source|--revision|--service-user|--install-root|--state-dir|--backup-dir|--actor|--packet-user)
+            [ "$#" -ge 2 ] || usage
+            case "$1" in
+                --source) SOURCE=$2 ;; --revision) REVISION=$2 ;; --service-user) SERVICE_USER=$2 ;;
+                --install-root) INSTALL_ROOT=$2 ;; --state-dir) STATE_DIR=$2 ;; --backup-dir) BACKUP_DIR=$2 ;;
+                --actor) ACTOR=$2 ;; --packet-user) PACKET_USER=$2 ;;
+            esac
+            shift 2 ;;
+        --authorize-root) [ "$#" -ge 2 ] || usage; [ -z "$AUTHORIZE_ROOT" ] || usage; AUTHORIZE_ROOT=$2; shift 2 ;;
+        --enable-timers) ENABLE_TIMERS=1; shift ;;
+        --adopt-existing) ADOPT_EXISTING=1; shift ;;
+        --install-packet-bridge) INSTALL_BRIDGE=1; shift ;;
+        *) usage ;;
+    esac
+done
+
+fail() { printf '%s\n' "bootstrap: $*" >&2; exit 2; }
+plan() { printf '%s\n' "PLAN: $*"; }
+run() { if [ "$APPLY" -eq 1 ]; then "$@"; else plan "$*"; fi; }
+absolute_dir() { case "$1" in /*) ;; *) fail "path must be absolute: $1";; esac; }
+
+[ "$(id -u)" -eq 0 ] || fail "must run as root"
+[ -n "$SOURCE" ] || usage
+[ -d "$SOURCE" ] || fail "source is not a directory"
+[ -f "$SOURCE/pyproject.toml" ] || fail "source lacks pyproject.toml"
+for path in "$INSTALL_ROOT" "$STATE_DIR" "$BACKUP_DIR"; do
+    absolute_dir "$path"
+    fs=$(findmnt -no FSTYPE -T "$path" 2>/dev/null || true)
+    case "$fs" in nfs*|cifs|smb*|fuse.sshfs) fail "refusing nonlocal SQLite path: $path ($fs)";; esac
+done
+# The supplied systemd templates deliberately use this hardened fixed layout.
+[ "$INSTALL_ROOT" = /opt/memoria ] || fail "custom --install-root needs custom reviewed systemd units"
+[ "$STATE_DIR" = /var/lib/memoria ] || fail "custom --state-dir needs custom reviewed systemd units"
+[ "$BACKUP_DIR" = /var/backups/memoria ] || fail "custom --backup-dir needs custom reviewed systemd units"
+[ "$SERVICE_USER" = memoria ] || fail "custom --service-user needs custom reviewed systemd units"
+[ -z "$AUTHORIZE_ROOT" ] || absolute_dir "$AUTHORIZE_ROOT"
+[ -z "$AUTHORIZE_ROOT" ] || [ -n "$ACTOR" ] || fail "--authorize-root requires --actor"
+[ "$INSTALL_BRIDGE" -eq 0 ] || [ -n "$PACKET_USER" ] || fail "--install-packet-bridge requires --packet-user"
+command -v python3 >/dev/null || fail "python3 not found"
+python3 - <<'PY' || fail "Python 3.11+ with SQLite FTS5 is required"
+import sqlite3, sys
+if sys.version_info < (3, 11): raise SystemExit(1)
+c = sqlite3.connect(":memory:")
+c.execute("create virtual table probe using fts5(text)")
+PY
+
+if [ -n "$REVISION" ]; then
+    command -v git >/dev/null || fail "git is required when --revision is supplied"
+    actual=$(git -C "$SOURCE" rev-parse HEAD 2>/dev/null) || fail "source is not a git checkout"
+    [ "$actual" = "$REVISION" ] || fail "source revision mismatch (got $actual)"
+fi
+
+for path in "$INSTALL_ROOT" "$STATE_DIR" "$BACKUP_DIR"; do
+    if [ -L "$path" ]; then fail "refusing symlinked managed path: $path"; fi
+done
+
+if ! getent passwd "$SERVICE_USER" >/dev/null; then
+    run useradd --system --user-group --home-dir /nonexistent --shell /usr/sbin/nologin "$SERVICE_USER"
+else
+    plan "reuse existing service account $SERVICE_USER"
+fi
+run install -d -o "$SERVICE_USER" -g "$SERVICE_USER" -m 0700 "$STATE_DIR" "$BACKUP_DIR"
+run install -d -o root -g root -m 0755 "$INSTALL_ROOT"
+
+VENV="$INSTALL_ROOT/.venv"
+CLI="$VENV/bin/memoria"
+if [ ! -x "$VENV/bin/python" ]; then
+    run python3 -m venv "$VENV"
+else
+    plan "reuse existing virtual environment $VENV"
+fi
+run "$VENV/bin/pip" install --no-deps --no-build-isolation "$SOURCE"
+
+DB="$STATE_DIR/memoria.db"
+if [ -e "$DB" ] && [ "$ADOPT_EXISTING" -ne 1 ]; then
+    fail "database already exists; inspect it, then rerun with --adopt-existing"
+fi
+if [ "$APPLY" -eq 1 ]; then
+    runuser -u "$SERVICE_USER" -- "$CLI" init --db "$DB"
+    runuser -u "$SERVICE_USER" -- "$CLI" verify --db "$DB"
+else
+    plan "initialize and verify $DB as $SERVICE_USER"
+fi
+
+if [ "$APPLY" -eq 1 ]; then
+    tmp=$(mktemp /etc/memoria.env.XXXXXX)
+    printf 'MEMORIA_DB=%s\nMEMORIA_BACKUP_DIR=%s\n' "$DB" "$BACKUP_DIR" > "$tmp"
+    install -o root -g root -m 0600 "$tmp" /etc/memoria.env
+    rm -f "$tmp"
+else
+    plan "write root-only /etc/memoria.env"
+fi
+run install -o root -g root -m 0644 "$SOURCE/deploy/systemd/memoria-verify.service" /etc/systemd/system/memoria-verify.service
+run install -o root -g root -m 0644 "$SOURCE/deploy/systemd/memoria-backup.service" /etc/systemd/system/memoria-backup.service
+run install -o root -g root -m 0644 "$SOURCE/deploy/systemd/memoria-verify.timer" /etc/systemd/system/memoria-verify.timer
+run install -o root -g root -m 0644 "$SOURCE/deploy/systemd/memoria-backup.timer" /etc/systemd/system/memoria-backup.timer
+run systemctl daemon-reload
+if [ "$APPLY" -eq 1 ]; then systemd-analyze verify /etc/systemd/system/memoria-verify.service /etc/systemd/system/memoria-backup.service /etc/systemd/system/memoria-verify.timer /etc/systemd/system/memoria-backup.timer; else plan "systemd-analyze verify installed units"; fi
+
+if [ -n "$AUTHORIZE_ROOT" ]; then
+    [ -d "$AUTHORIZE_ROOT" ] || fail "authorized root is not a directory"
+    if [ "$APPLY" -eq 1 ]; then
+        runuser -u "$SERVICE_USER" -- test -r "$AUTHORIZE_ROOT" -a -x "$AUTHORIZE_ROOT" || fail "service user cannot read/traverse authorized root"
+        runuser -u "$SERVICE_USER" -- "$CLI" authorize-root --db "$DB" --root "$AUTHORIZE_ROOT" --actor "$ACTOR"
+    else plan "verify access and authorize $AUTHORIZE_ROOT as actor $ACTOR"; fi
+fi
+
+if [ "$INSTALL_BRIDGE" -eq 1 ]; then
+    [ "$SERVICE_USER" = memoria ] || fail "packet bridge currently requires service user memoria"
+    [ "$INSTALL_ROOT" = /opt/memoria ] || fail "packet bridge currently requires install root /opt/memoria"
+    [ "$STATE_DIR" = /var/lib/memoria ] || fail "packet bridge currently requires state dir /var/lib/memoria"
+    if [ "$APPLY" -eq 1 ]; then
+        install -o root -g root -m 0755 "$SOURCE/deploy/helpers/memoria-packet" /usr/local/sbin/memoria-packet
+        tmp=$(mktemp /etc/sudoers.d/memoria-packet.XXXXXX)
+        printf '%s ALL=(root) NOSETENV: NOPASSWD: /usr/local/sbin/memoria-packet\n' "$PACKET_USER" > "$tmp"
+        visudo -cf "$tmp"
+        install -o root -g root -m 0440 "$tmp" /etc/sudoers.d/"$PACKET_USER"-memoria-packet
+        rm -f "$tmp"
+    else plan "install and validate packet bridge for $PACKET_USER"; fi
+fi
+
+if [ "$ENABLE_TIMERS" -eq 1 ]; then
+    run systemctl enable memoria-verify.timer memoria-backup.timer
+else
+    plan "timers installed but left disabled; use --enable-timers after reviewing acceptance results"
+fi
+
+if [ "$APPLY" -eq 1 ]; then
+    runuser -u "$SERVICE_USER" -- "$CLI" backup --db "$DB" --output-dir "$BACKUP_DIR"
+    backup=$(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'memoria-*.sqlite3' -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)
+    [ -n "$backup" ] || fail "backup was not created"
+    drill="$STATE_DIR/restore-drill-$$.db"
+    runuser -u "$SERVICE_USER" -- "$CLI" restore --backup "$backup" --db "$drill"
+    runuser -u "$SERVICE_USER" -- "$CLI" verify --db "$drill"
+    rm -f "$drill" "$drill-wal" "$drill-shm"
+    printf '%s\n' "bootstrap: accepted baseline install; timers enabled=$ENABLE_TIMERS"
+else
+    printf '%s\n' "bootstrap: dry-run complete; no state changed"
+fi

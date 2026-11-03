@@ -12,7 +12,7 @@ Memoria holds the missing layer: dated source snapshots, decisions, incidents, l
 
 ## Release state
 
-`1.0.0rc1` is deployment-ready but not deployed. It has no network client, telemetry, web server, hosted dependency, or automatic Hermes/Honcho writer. See `docs/readiness-audit.md` and `docs/deployment.md` before installation.
+`1.0.0rc1` is deployment-ready. It has no network client, telemetry, web server, hosted dependency, or automatic Hermes/Honcho writer. See `docs/readiness-audit.md` and `docs/deployment.md` before installation.
 
 ## Invariants
 
