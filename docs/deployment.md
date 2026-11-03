@@ -1,44 +1,68 @@
 # Deployment guide
 
-This guide prepares a local Linux deployment. It does not authorize one.
+Memoria has one local Linux first-install path: `deploy/bootstrap`. It creates the dedicated service account, private directories, virtual environment, database, root-only environment file, systemd units, verified backup, and isolated restore drill. It never contacts a network service.
 
 ## Preconditions
 
-- Python 3.11 or newer with SQLite FTS5.
-- A dedicated unprivileged `memoria` service account.
-- Local state and backup filesystems selected and capacity-monitored.
-- Authorized Obsidian roots selected explicitly.
-- No Vercel, GitLab, hosted database, or public network path.
+- Run as root on a systemd Linux host.
+- Python 3.11+ with SQLite FTS5, `git`, `findmnt`, `runuser`, and `systemd-analyze`.
+- A reviewed local checkout at an immutable Git revision. Bootstrap installs only from that local checkout using `pip --no-deps --no-build-isolation`; it does not clone, fetch, or download packages.
+- Local (not NFS/SMB/SSHFS) storage for `/var/lib/memoria` and `/var/backups/memoria`.
+- The fixed, reviewed layout: service user `memoria`, application `/opt/memoria`, database `/var/lib/memoria/memoria.db`, backups `/var/backups/memoria`.
 
-## Install staging
+The script is dry-run by default. It refuses symlinked managed paths, insufficient Python/FTS5, mismatched immutable revisions, nonlocal selected filesystems, and an existing database unless `--adopt-existing` is supplied after inspection. It preserves existing evidence; it does not delete or prune history.
 
-```bash
-python3 -m venv /opt/memoria/.venv
-/opt/memoria/.venv/bin/pip install /path/to/memoria-source
-install -d -m 0700 -o memoria -g memoria /var/lib/memoria /var/backups/memoria
-sudo -u memoria /opt/memoria/.venv/bin/memoria init --db /var/lib/memoria/memoria.db
-sudo -u memoria /opt/memoria/.venv/bin/memoria verify --db /var/lib/memoria/memoria.db
-```
+## Baseline installation
 
-Authorize each note root separately:
+From a checked-out release commit:
 
 ```bash
-sudo -u memoria /opt/memoria/.venv/bin/memoria authorize-root \
-  --db /var/lib/memoria/memoria.db --root /srv/approved-notes --actor dylan
+sudo ./deploy/bootstrap \
+  --source "$PWD" \
+  --revision "$(git rev-parse HEAD)"
+
+sudo ./deploy/bootstrap --apply \
+  --source "$PWD" \
+  --revision "$(git rev-parse HEAD)"
 ```
 
-Copy `deploy/memoria.env.example` to `/etc/memoria.env`, restrict it to root, and adjust paths. Install the systemd units only after reviewing their user, executable and paths. Timers verify daily and back up daily; neither prunes history.
+The apply run verifies the initialized database, writes `/etc/memoria.env` as `root:root 0600`, installs and validates the four units, creates one verified backup, restores it to an isolated drill database, verifies that drill, then removes only the drill database. Timers are installed but remain disabled.
 
-## Acceptance test
+Enable timers only after the acceptance output has been reviewed:
 
-1. Record a non-sensitive canary with a historical occurrence time.
-2. Query it by entity and date.
-3. Generate a packet and confirm its actual stdout length is within budget.
-4. Ingest one note from an authorized root twice; the second run must report `changed: false`.
-5. Back up, restore to a drill path, and verify the restored database.
-6. Confirm a secret-like canary is refused and absent from query output.
-7. Confirm no network listener or outbound client is created.
+```bash
+sudo ./deploy/bootstrap --apply --adopt-existing --enable-timers \
+  --source "$PWD" --revision "$(git rev-parse HEAD)"
+systemctl is-enabled memoria-verify.timer memoria-backup.timer
+systemctl list-timers --all --no-pager | grep -F memoria
+```
+
+The supplied schedule is daily verification at 03:15 UTC and backup at 03:30 UTC with no randomized delay. Backups are append-only; no retention or pruning is installed.
+
+## Explicit note authorization
+
+Authorization is an evidence write and requires a real approved root plus actor. It is optional, and is never inferred from the account's home directory:
+
+```bash
+sudo ./deploy/bootstrap --apply \
+  --source "$PWD" --revision "$(git rev-parse HEAD)" \
+  --authorize-root /srv/approved-notes --actor operator
+```
+
+The bootstrap proves that the `memoria` account can read and traverse the root before appending the grant. Ingest one harmless, non-secret note separately; inspect its result, then ingest it again to prove idempotence.
+
+## Optional Hermes retrieval bridge
+
+The root-owned packet bridge is not a baseline default. It grants a named local principal passwordless execution of one read-only, fixed-path command. Review its shell source and use a disposable SSH session with a separate rollback session before enabling it:
+
+```bash
+sudo ./deploy/bootstrap --apply \
+  --source "$PWD" --revision "$(git rev-parse HEAD)" \
+  --install-packet-bridge --packet-user caretaker
+```
+
+The script validates sudoers syntax before installation. The caller must separately verify ownership/modes, a successful cited packet, and rejection of `--db` overrides. If the session behaves unexpectedly, remove only `/etc/sudoers.d/USER-memoria-packet` and `/usr/local/sbin/memoria-packet` from the rollback session, then run `visudo -c`.
 
 ## Rollback
 
-Do not delete the failed deployment. Stop timers, preserve the database/WAL/SHM and logs, restore the prior package and verified database to a new path, then point operations at that path after review.
+Do not delete a failed database, its WAL/SHM files, or backups. Disable timers, preserve logs and all evidence, and restore a verified backup to a new path for inspection. The bootstrap intentionally has no destructive rollback mode.

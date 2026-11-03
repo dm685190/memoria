@@ -2,9 +2,9 @@
 Description=Daily verified Memoria backup
 
 [Timer]
-OnCalendar=*-*-* 03:45:00
+OnCalendar=*-*-* 03:30:00
 Persistent=true
-RandomizedDelaySec=10m
+RandomizedDelaySec=0
 Unit=memoria-backup.service
 
 [Install]
