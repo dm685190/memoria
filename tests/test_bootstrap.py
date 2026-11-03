@@ -28,7 +28,8 @@ class BootstrapTests(unittest.TestCase):
 
     def test_bootstrap_preserves_local_and_fixed_path_guards(self):
         text = BOOTSTRAP.read_text()
-        self.assertIn("--no-deps --no-build-isolation", text)
+        self.assertIn('cd "$SOURCE"\nrun "$VENV/bin/python" setup.py install', text)
+        self.assertIn("Debian's minimal venv omits wheel", text)
         self.assertIn("refusing nonlocal SQLite path", text)
         self.assertIn("refusing symlinked managed path", text)
         self.assertIn("--adopt-existing", text)
