@@ -25,3 +25,22 @@ Rejected for now:
 - Automatic synchronization of raw conversations.
 - Automatically updating Hermes or Honcho from a search result.
 - Deployment before the information model and access boundary are reviewed.
+
+## 2026-11-03 — pre-deployment hardening
+
+Accepted:
+
+- SQLite-enforced append-only evidence plus a tamper-evident event hash chain.
+- Content/revision separation for idempotent, chronological note capture.
+- Explicit append-only authorization of ingestion roots.
+- A complete serialized-character budget for the read-only agent packet.
+- Proposal, review, external application, and exact read-back evidence for promotion.
+- Verified backups, preflighted atomic restore, integrity checks, CI, and staged systemd units.
+
+Deferred until measured need:
+
+- Embeddings or semantic retrieval.
+- A resident HTTP or MCP server; the bounded CLI JSON contract is sufficient for the first deployment.
+- Automatic retention or deletion. History remains evidence.
+
+Deployment remains a separate approval after staging acceptance tests pass.
