@@ -93,6 +93,21 @@ def evidence_packet(
                 high = middle - 1
         if best is not None and best["evidence"][-1]["excerpt"]:
             packet = best
+        elif not packet["evidence"]:
+            minimum_item = {"title": row["title"], "excerpt": "", "citation": citation}
+            minimum_packet = dict(packet)
+            minimum_packet["evidence"] = [minimum_item]
+            minimum_packet = _finalize_used(minimum_packet)
+
+            exhausted = dict(packet)
+            exhausted["evidence_status"] = "budget_exhausted"
+            exhausted["minimum_evidence_chars"] = len(serialize_packet(minimum_packet))
+            exhausted = _finalize_used(exhausted)
+            if len(serialize_packet(exhausted)) > max_chars:
+                raise ValueError(
+                    "packet budget cannot report matching evidence; increase max_chars"
+                )
+            packet = exhausted
         break
 
     packet = _finalize_used(packet)

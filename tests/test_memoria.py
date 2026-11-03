@@ -42,6 +42,16 @@ class MemoriaTests(unittest.TestCase):
         self.assertEqual(packet["evidence"][0]["citation"]["event_id"], event_id)
         self.assertTrue(packet["read_only"])
 
+    def test_packet_reports_when_a_match_cannot_fit_the_budget(self):
+        self.store.record("note_capture", "A deliberately long title " * 12, "budget needle", [])
+        packet = evidence_packet(self.store, "find note", "budget needle", None, 500)
+        encoded = serialize_packet(packet)
+        self.assertEqual(packet["evidence"], [])
+        self.assertEqual(packet["evidence_status"], "budget_exhausted")
+        self.assertGreater(packet["minimum_evidence_chars"], packet["budget_chars"])
+        self.assertLessEqual(len(encoded), 500)
+        self.assertEqual(packet["used_chars"], len(encoded))
+
     def test_packet_counts_metadata_and_rejects_impossible_budget(self):
         with self.assertRaises(ValueError):
             evidence_packet(self.store, "x" * 1000, "evidence", None, 400)
