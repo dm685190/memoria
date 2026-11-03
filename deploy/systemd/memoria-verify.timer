@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Memoria integrity verification
+
+[Timer]
+OnCalendar=*-*-* 03:15:00
+Persistent=true
+RandomizedDelaySec=10m
+Unit=memoria-verify.service
+
+[Install]
+WantedBy=timers.target
