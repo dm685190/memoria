@@ -1,0 +1,50 @@
+#!/bin/sh
+# Root-owned, fixed-path packet bridge. Install only as root (0755 root:root).
+# This bridge is deliberately inert until paired with its sudoers policy.
+set -eu
+
+CLI=/opt/memoria/.venv/bin/memoria
+DB=/var/lib/memoria/memoria.db
+
+usage() {
+    printf '%s\n' 'usage: memoria-packet --task TEXT --query TEXT [--entity NAME] [--after ISO8601] [--before ISO8601] [--limit 1..5] [--max-chars 822..2000]' >&2
+    exit 64
+}
+
+[ "$#" -gt 0 ] || usage
+task=0 query=0 entity=0 after=0 before=0 limit=0 max_chars=0
+while [ "$#" -gt 0 ]; do
+    flag=$1
+    case "$flag" in
+        --task|--query|--entity|--after|--before|--limit|--max-chars)
+            [ "$#" -ge 2 ] || usage
+            value=$2
+            [ -n "$value" ] || usage
+            case "$flag" in
+                --task) [ "$task" -eq 0 ] || usage; task=1; task_value=$value ;;
+                --query) [ "$query" -eq 0 ] || usage; query=1; query_value=$value ;;
+                --entity) [ "$entity" -eq 0 ] || usage; entity=1; entity_value=$value ;;
+                --after) [ "$after" -eq 0 ] || usage; after=1; after_value=$value ;;
+                --before) [ "$before" -eq 0 ] || usage; before=1; before_value=$value ;;
+                --limit)
+                    [ "$limit" -eq 0 ] || usage; limit=1; limit_value=$value
+                    case "$value" in [1-5]) ;; *) usage ;; esac ;;
+                --max-chars)
+                    [ "$max_chars" -eq 0 ] || usage; max_chars=1; max_chars_value=$value
+                    case "$value" in *[!0-9]*|'') usage ;; esac
+                    [ "$value" -ge 822 ] && [ "$value" -le 2000 ] || usage ;;
+            esac
+            shift 2
+            ;;
+        *) usage ;;
+    esac
+done
+
+[ "$task" -eq 1 ] && [ "$query" -eq 1 ] || usage
+set -- --task "$task_value" --query "$query_value"
+[ "$entity" -eq 0 ] || set -- "$@" --entity "$entity_value"
+[ "$after" -eq 0 ] || set -- "$@" --after "$after_value"
+[ "$before" -eq 0 ] || set -- "$@" --before "$before_value"
+[ "$limit" -eq 0 ] || set -- "$@" --limit "$limit_value"
+[ "$max_chars" -eq 0 ] || set -- "$@" --max-chars "$max_chars_value"
+exec /usr/sbin/runuser -u memoria -- "$CLI" packet --db "$DB" "$@"

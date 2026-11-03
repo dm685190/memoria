@@ -53,3 +53,11 @@ Writers serialize with `BEGIN IMMEDIATE`; readers use SQLite WAL mode. Busy time
 ## Retention
 
 Memoria does not delete evidence or backups. Retention is an external, explicitly approved policy. Capacity alerts should precede any archival decision.
+
+## Optional noninteractive packet bridge
+
+The repository includes a reviewable, fixed-path bridge at `deploy/helpers/memoria-packet` and its paired sudoers policy at `deploy/sudoers.memoria-packet`. It is not installed by package installation and does not alter service state.
+
+The bridge accepts only `memoria packet`'s retrieval flags, requires `--task` and `--query`, fixes the database path, limits retrieval to 1–5 records and 822–2000 output characters, and executes the package as the unprivileged `memoria` account. It rejects environment overrides, write commands, unknown flags, duplicate flags, and empty values.
+
+Before any activation, install the helper and sudoers policy through an independently reviewed root session, run `visudo -cf` on the policy, and test from a disposable SSH connection. If the connection drops, remove both artifacts from a separate session and inspect SSH and sudo journals before retrying.
