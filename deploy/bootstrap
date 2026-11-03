@@ -112,7 +112,11 @@ if [ ! -x "$VENV/bin/python" ]; then
 else
     plan "reuse existing virtual environment $VENV"
 fi
-run "$VENV/bin/pip" install --no-deps --no-build-isolation "$SOURCE"
+# Debian's minimal venv omits wheel. Install directly with setuptools so the
+# bootstrap remains local-only and does not download build requirements.
+# setuptools derives src-layout metadata from the checkout working directory.
+cd "$SOURCE"
+run "$VENV/bin/python" setup.py install
 
 DB="$STATE_DIR/memoria.db"
 if [ -e "$DB" ] && [ "$ADOPT_EXISTING" -ne 1 ]; then

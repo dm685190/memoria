@@ -6,7 +6,7 @@ Memoria has one local Linux first-install path: `deploy/bootstrap`. It creates t
 
 - Run as root on a systemd Linux host.
 - Python 3.11+ with SQLite FTS5, `git`, `findmnt`, `runuser`, and `systemd-analyze`.
-- A reviewed local checkout at an immutable Git revision. Bootstrap installs only from that local checkout using `pip --no-deps --no-build-isolation`; it does not clone, fetch, or download packages.
+- A reviewed local checkout at an immutable Git revision. Bootstrap installs only from that local checkout through its bundled `setup.py` compatibility entry point, because minimal Debian virtual environments omit `wheel`; it does not clone, fetch, or download packages.
 - Local (not NFS/SMB/SSHFS) storage for `/var/lib/memoria` and `/var/backups/memoria`.
 - The fixed, reviewed layout: service user `memoria`, application `/opt/memoria`, database `/var/lib/memoria/memoria.db`, backups `/var/backups/memoria`.
 
