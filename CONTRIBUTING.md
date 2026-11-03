@@ -13,4 +13,7 @@ Validate with:
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests -v
 PYTHONPATH=src python -m memoria.cli --help
+python -m build
 ```
+
+Every release candidate must also pass a clean virtual-environment install, CLI smoke test, backup/restore drill, and `memoria verify`. Do not weaken an append-only trigger or packet budget to make a test convenient.
