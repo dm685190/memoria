@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily verified Memoria backup
+
+[Timer]
+OnCalendar=*-*-* 03:45:00
+Persistent=true
+RandomizedDelaySec=10m
+Unit=memoria-backup.service
+
+[Install]
+WantedBy=timers.target
