@@ -1,0 +1,73 @@
+#!/bin/sh
+# Root-owned ingestion bridge. Install only as root (0755 root:root).
+# Accepts only --path under a root listed in the local allowlist config.
+# This bridge is deliberately inert until paired with its sudoers policy
+# AND a populated allowlist config — ships with zero authorized roots.
+set -eu
+
+CLI=/opt/memoria/.venv/bin/memoria
+DB=/var/lib/memoria/memoria.db
+
+# Local-only allowlist, NOT part of this repository. One absolute root path
+# per line; blank lines and lines starting with # are ignored. Create and
+# review it directly on the host:
+#   sudo install -o root -g root -m 0600 /dev/null /etc/memoria-ingest.conf
+#   echo '/path/to/authorized/vault/subfolder' | sudo tee -a /etc/memoria-ingest.conf
+ALLOWLIST=/etc/memoria-ingest.conf
+
+usage() {
+    printf '%s\n' 'usage: memoria-ingest --path FILE [--observed-at ISO8601]' >&2
+    exit 64
+}
+
+[ -r "$ALLOWLIST" ] || {
+    printf '%s\n' "memoria-ingest: no allowlist at $ALLOWLIST; nothing is authorized" >&2
+    exit 65
+}
+
+[ "$#" -gt 0 ] || usage
+path=0 observed=0
+while [ "$#" -gt 0 ]; do
+    flag=$1
+    case "$flag" in
+        --path|--observed-at)
+            [ "$#" -ge 2 ] || usage
+            value=$2
+            [ -n "$value" ] || usage
+            case "$flag" in
+                --path) [ "$path" -eq 0 ] || usage; path=1; path_value=$value ;;
+                --observed-at) [ "$observed" -eq 0 ] || usage; observed=1; observed_value=$value ;;
+            esac
+            shift 2
+            ;;
+        *) usage ;;
+    esac
+done
+[ "$path" -eq 1 ] || usage
+
+# Reject anything containing .. or not resolvable; resolve to a real path first.
+case "$path_value" in
+    *..*) usage ;;
+esac
+resolved=$(readlink -f -- "$path_value" 2>/dev/null) || usage
+[ -n "$resolved" ] || usage
+[ -f "$resolved" ] || usage
+
+vault=""
+while IFS= read -r root || [ -n "$root" ]; do
+    case "$root" in
+        ''|'#'*) continue ;;
+    esac
+    resolved_root=$(readlink -f -- "$root" 2>/dev/null) || continue
+    [ -n "$resolved_root" ] || continue
+    [ -d "$resolved_root" ] || continue
+    case "$resolved" in
+        "$resolved_root"/*) vault=$resolved_root; break ;;
+    esac
+done < "$ALLOWLIST"
+
+[ -n "$vault" ] || usage
+
+set -- --vault "$vault" --path "$resolved"
+[ "$observed" -eq 0 ] || set -- "$@" --observed-at "$observed_value"
+exec /usr/sbin/runuser -u memoria -- "$CLI" ingest-obsidian --db "$DB" "$@"

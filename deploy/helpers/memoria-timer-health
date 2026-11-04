@@ -1,0 +1,35 @@
+#!/bin/sh
+# Read-only cron-fleet visibility check for Memoria's host systemd timers.
+# Exits 0 if both timers are active and their last-triggered service did not fail.
+# Exits 1 and prints a one-line problem summary otherwise. No sudo required to read unit state.
+set -eu
+
+problems=""
+
+check_unit() {
+    unit=$1
+    if ! systemctl is-active --quiet "$unit"; then
+        problems="${problems}${unit}: not active (is-active=$(systemctl is-active "$unit" 2>&1 || true)); "
+    fi
+}
+
+check_service_result() {
+    service=$1
+    result=$(systemctl show -p Result --value "$service" 2>/dev/null || echo "unknown")
+    if [ "$result" != "success" ] && [ "$result" != "" ]; then
+        problems="${problems}${service}: last result='${result}'; "
+    fi
+}
+
+check_unit memoria-verify.timer
+check_unit memoria-backup.timer
+check_service_result memoria-verify.service
+check_service_result memoria-backup.service
+
+if [ -n "$problems" ]; then
+    printf 'memoria-timer-health: PROBLEM: %s\n' "$problems" >&2
+    exit 1
+fi
+
+printf 'memoria-timer-health: ok\n'
+exit 0

@@ -1,0 +1,3 @@
+# Install as /etc/sudoers.d/caretaker-memoria-ingest (0440 root:root) only after review.
+# NOSETENV prevents caller-controlled environment from changing the fixed helper's behavior.
+caretaker ALL=(root) NOSETENV: NOPASSWD: /usr/local/sbin/memoria-ingest
