@@ -1,19 +1,28 @@
 #!/bin/sh
-# Root-owned, fixed-path ingestion bridge. Install only as root (0755 root:root).
-# Accepts only --path under one of two hardcoded authorized vault roots.
-# This bridge is deliberately inert until paired with its sudoers policy.
+# Root-owned ingestion bridge. Install only as root (0755 root:root).
+# Accepts only --path under a root listed in the local allowlist config.
+# This bridge is deliberately inert until paired with its sudoers policy
+# AND a populated allowlist config — ships with zero authorized roots.
 set -eu
 
 CLI=/opt/memoria/.venv/bin/memoria
 DB=/var/lib/memoria/memoria.db
 
-# Fixed, reviewed allowlist. Edit here (and re-review) to add a root — never via a flag.
-ROOT_DAILY=/home/caretaker/nas-home/Obsidian/RobinVault/Robin/Daily
-ROOT_GRANOLA=/home/caretaker/nas-home/Obsidian/RobinVault/Granola
+# Local-only allowlist, NOT part of this repository. One absolute root path
+# per line; blank lines and lines starting with # are ignored. Create and
+# review it directly on the host:
+#   sudo install -o root -g root -m 0600 /dev/null /etc/memoria-ingest.conf
+#   echo '/path/to/authorized/vault/subfolder' | sudo tee -a /etc/memoria-ingest.conf
+ALLOWLIST=/etc/memoria-ingest.conf
 
 usage() {
     printf '%s\n' 'usage: memoria-ingest --path FILE [--observed-at ISO8601]' >&2
     exit 64
+}
+
+[ -r "$ALLOWLIST" ] || {
+    printf '%s\n' "memoria-ingest: no allowlist at $ALLOWLIST; nothing is authorized" >&2
+    exit 65
 }
 
 [ "$#" -gt 0 ] || usage
@@ -44,11 +53,20 @@ resolved=$(readlink -f -- "$path_value" 2>/dev/null) || usage
 [ -n "$resolved" ] || usage
 [ -f "$resolved" ] || usage
 
-case "$resolved" in
-    "$ROOT_DAILY"/*) vault=$ROOT_DAILY ;;
-    "$ROOT_GRANOLA"/*) vault=$ROOT_GRANOLA ;;
-    *) usage ;;
-esac
+vault=""
+while IFS= read -r root || [ -n "$root" ]; do
+    case "$root" in
+        ''|'#'*) continue ;;
+    esac
+    resolved_root=$(readlink -f -- "$root" 2>/dev/null) || continue
+    [ -n "$resolved_root" ] || continue
+    [ -d "$resolved_root" ] || continue
+    case "$resolved" in
+        "$resolved_root"/*) vault=$resolved_root; break ;;
+    esac
+done < "$ALLOWLIST"
+
+[ -n "$vault" ] || usage
 
 set -- --vault "$vault" --path "$resolved"
 [ "$observed" -eq 0 ] || set -- "$@" --observed-at "$observed_value"
