@@ -1,0 +1,55 @@
+#!/bin/sh
+# Root-owned, fixed-path ingestion bridge. Install only as root (0755 root:root).
+# Accepts only --path under one of two hardcoded authorized vault roots.
+# This bridge is deliberately inert until paired with its sudoers policy.
+set -eu
+
+CLI=/opt/memoria/.venv/bin/memoria
+DB=/var/lib/memoria/memoria.db
+
+# Fixed, reviewed allowlist. Edit here (and re-review) to add a root — never via a flag.
+ROOT_DAILY=/home/caretaker/nas-home/Obsidian/RobinVault/Robin/Daily
+ROOT_GRANOLA=/home/caretaker/nas-home/Obsidian/RobinVault/Granola
+
+usage() {
+    printf '%s\n' 'usage: memoria-ingest --path FILE [--observed-at ISO8601]' >&2
+    exit 64
+}
+
+[ "$#" -gt 0 ] || usage
+path=0 observed=0
+while [ "$#" -gt 0 ]; do
+    flag=$1
+    case "$flag" in
+        --path|--observed-at)
+            [ "$#" -ge 2 ] || usage
+            value=$2
+            [ -n "$value" ] || usage
+            case "$flag" in
+                --path) [ "$path" -eq 0 ] || usage; path=1; path_value=$value ;;
+                --observed-at) [ "$observed" -eq 0 ] || usage; observed=1; observed_value=$value ;;
+            esac
+            shift 2
+            ;;
+        *) usage ;;
+    esac
+done
+[ "$path" -eq 1 ] || usage
+
+# Reject anything containing .. or not resolvable; resolve to a real path first.
+case "$path_value" in
+    *..*) usage ;;
+esac
+resolved=$(readlink -f -- "$path_value" 2>/dev/null) || usage
+[ -n "$resolved" ] || usage
+[ -f "$resolved" ] || usage
+
+case "$resolved" in
+    "$ROOT_DAILY"/*) vault=$ROOT_DAILY ;;
+    "$ROOT_GRANOLA"/*) vault=$ROOT_GRANOLA ;;
+    *) usage ;;
+esac
+
+set -- --vault "$vault" --path "$resolved"
+[ "$observed" -eq 0 ] || set -- "$@" --observed-at "$observed_value"
+exec /usr/sbin/runuser -u memoria -- "$CLI" ingest-obsidian --db "$DB" "$@"
